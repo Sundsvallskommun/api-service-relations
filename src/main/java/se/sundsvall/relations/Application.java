@@ -1,4 +1,4 @@
-package se.sundsvall.template;
+package se.sundsvall.relations;
 
 import static org.springframework.boot.SpringApplication.run;
 
