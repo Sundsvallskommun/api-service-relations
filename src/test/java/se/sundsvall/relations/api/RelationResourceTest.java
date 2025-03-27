@@ -237,7 +237,7 @@ class RelationResourceTest {
 
 	private static Stream<Arguments> allMethodsAndUri() {
 		Function<UriBuilder, URI> relationUri = uriBuilder -> uriBuilder.path("/{municipalityId}/relation").build(Map.of("municipalityId", "1234"));
-		Function<UriBuilder, URI> relationUriWithId = uriBuilder -> uriBuilder.path("/{municipalityId}/relation/{id}").build(Map.of("municipalityId", "1234", "id", "some-id"));
+		Function<UriBuilder, URI> relationUriWithId = uriBuilder -> uriBuilder.path("/{municipalityId}/relation/{id}").build(Map.of("municipalityId", "1234", "id", RELATION_ID));
 
 		return Stream.of(
 			Arguments.of("POST", relationUri),
