@@ -17,7 +17,7 @@ _Service for storing relations between foreign id (resources)._
 
    ```bash
    git clone https://github.com/Sundsvallskommun/api-service-relations.git
-   cd api-RelationService-relations
+   cd api-service-relations
    ```
 2. **Configure the application:**
 

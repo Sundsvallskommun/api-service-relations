@@ -1,11 +1,11 @@
 package se.sundsvall.relations.service;
 
 import jakarta.persistence.Entity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import se.sundsvall.relations.api.model.Relation;
+import se.sundsvall.relations.api.model.RelationPageParameters;
+import se.sundsvall.relations.api.model.RelationPagedResponse;
 
 @Service
 public class RelationService {
@@ -15,7 +15,7 @@ public class RelationService {
 		return null;
 	}
 
-	public Page<Relation> findRelations(String municipalityId, Specification<? extends Entity> filter, Pageable pageable) {
+	public RelationPagedResponse findRelations(String municipalityId, Specification<? extends Entity> filter, RelationPageParameters pageParameters) {
 		// TODO: implement
 		return null;
 	}

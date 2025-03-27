@@ -15,7 +15,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Builder(setterPrefix = "with")
 @Schema(description = "Relation between objects")
 public class Relation {
-	// TODO verify RequiredMode (defaults to AUTO)
 
 	// Relation
 	@Schema(description = "Unique id for the relation", example = "f4de6b8b-f727-4ed1-9959-b9d5bde1922f", accessMode = READ_ONLY)
@@ -41,11 +40,11 @@ public class Relation {
 	@NotBlank
 	private String sourceId;
 
-	@Schema(description = "Type of source object")
+	@Schema(description = "Type of source object", example = "case")
 	@NotBlank
 	private String sourceType;
 
-	@Schema(description = "Name of RelationService where source object exists")
+	@Schema(description = "Name of service where source object exists")
 	@NotBlank
 	private String sourceService;
 
@@ -57,11 +56,11 @@ public class Relation {
 	@NotBlank
 	private String targetId;
 
-	@Schema(description = "Type of target object")
+	@Schema(description = "Type of target object", example = "document")
 	@NotBlank
 	private String targetType;
 
-	@Schema(description = "Name of RelationService where target object exists")
+	@Schema(description = "Name of service where target object exists")
 	@NotBlank
 	private String targetService;
 
