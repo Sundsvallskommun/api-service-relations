@@ -65,8 +65,8 @@ class RelationResource {
 	ResponseEntity<Void> createRelation(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Valid @NotNull @RequestBody final Relation relation) {
-		return created(fromPath("/relation/{id}")
-			.buildAndExpand(service.createRelation(municipalityId, relation)).toUri())
+		return created(fromPath("/{municipalityId}/relations/{id}")
+			.buildAndExpand(municipalityId, service.createRelation(municipalityId, relation)).toUri())
 			.header(CONTENT_TYPE, ALL_VALUE)
 			.build();
 	}
