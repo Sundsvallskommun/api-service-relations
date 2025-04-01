@@ -13,10 +13,19 @@
 	<version>0.1</version>
 	<name>api-service-relations</name>
 	<properties>
+		<spring-filter.version>3.1.9</spring-filter.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>se.sundsvall.dept44</groupId>
+			<artifactId>dept44-common-validators</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>se.sundsvall.dept44</groupId>
+			<artifactId>dept44-models</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -39,6 +48,11 @@
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-mysql</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.turkraft.springfilter</groupId>
+			<artifactId>jpa</artifactId>
+			<version>${spring-filter.version}</version>
+		</dependency>
 		<!-- Test -->
 		<dependency>
 			<groupId>se.sundsvall.dept44</groupId>
@@ -49,6 +63,12 @@
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mariadb</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<!-- Other -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -66,6 +86,8 @@
 				<configuration>
 					<excludes>
 						<exclude>**/se/sundsvall/relations/Application*</exclude>
+						<!-- TODO: Remove when implemented -->
+						<exclude>**/se/sundsvall/relations/service/RelationService*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
