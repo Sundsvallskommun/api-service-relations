@@ -60,7 +60,7 @@ class RelationResourceTest {
 			.exchange()
 			.expectStatus().isCreated()
 			.expectHeader().contentType(ALL)
-			.expectHeader().location("/relation/" + RELATION_ID)
+			.expectHeader().location("/" + MUNICIPALITY_ID + "/relations/" + RELATION_ID)
 			.expectBody().isEmpty();
 
 		verify(serviceMock).createRelation(MUNICIPALITY_ID, relationInstance);
