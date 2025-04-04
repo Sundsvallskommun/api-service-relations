@@ -5,6 +5,7 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import java.time.OffsetDateTime;
 import lombok.Builder;
@@ -35,35 +36,11 @@ public class Relation {
 	@Null
 	private OffsetDateTime modified;
 
-	// Source
-	@Schema(description = "Unique id for the source object", example = "some-id")
-	@NotBlank
-	private String sourceId;
+	@Schema(description = "Source identifiers")
+	@NotNull
+	private ResourceIdentifier source;
 
-	@Schema(description = "Type of source object", example = "case")
-	@NotBlank
-	private String sourceType;
-
-	@Schema(description = "Name of service where source object exists")
-	@NotBlank
-	private String sourceService;
-
-	@Schema(description = "Namespace of source object")
-	private String sourceNamespace;
-
-	// Target
-	@Schema(description = "Unique id for the target object", example = "some-id")
-	@NotBlank
-	private String targetId;
-
-	@Schema(description = "Type of target object", example = "document")
-	@NotBlank
-	private String targetType;
-
-	@Schema(description = "Name of service where target object exists")
-	@NotBlank
-	private String targetService;
-
-	@Schema(description = "Namespace of target object")
-	private String targetNamespace;
+	@Schema(description = "Target identifiers")
+	@NotNull
+	private ResourceIdentifier target;
 }
