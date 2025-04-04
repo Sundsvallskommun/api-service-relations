@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import se.sundsvall.relations.integration.db.model.RelationEntity;
+import se.sundsvall.relations.integration.db.model.ResourceIdentifierEntity;
 
 @SpringBootTest
 @ActiveProfiles("junit")
@@ -26,7 +27,7 @@ import se.sundsvall.relations.integration.db.model.RelationEntity;
 class RelationRepositoryTest {
 
 	@Autowired
-	RelationRepository repository;
+	private RelationRepository repository;
 
 	@Autowired
 	private FilterSpecificationConverter filterSpecificationConverter;
@@ -47,14 +48,16 @@ class RelationRepositoryTest {
 		final var relationEntity = RelationEntity.builder()
 			.withType(type)
 			.withMunicipalityId(municipalityId)
-			.withSourceId(sourceId)
-			.withSourceType(sourceType)
-			.withSourceService(sourceService)
-			.withSourceNamespace(sourceNamespace)
-			.withTargetId(targetId)
-			.withTargetType(targetType)
-			.withTargetService(targetService)
-			.withTargetNamespace(targetNamespace)
+			.withSource(ResourceIdentifierEntity.builder()
+				.withResourceId(sourceId)
+				.withType(sourceType)
+				.withService(sourceService)
+				.withNamespace(sourceNamespace).build())
+			.withTarget(ResourceIdentifierEntity.builder()
+				.withResourceId(targetId)
+				.withType(targetType)
+				.withService(targetService)
+				.withNamespace(targetNamespace).build())
 			.build();
 
 		final var persistedEntity = repository.save(relationEntity);
@@ -65,14 +68,14 @@ class RelationRepositoryTest {
 		assertThat(persistedEntity.getMunicipalityId()).isEqualTo(municipalityId);
 		assertThat(persistedEntity.getCreated()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
 		assertThat(persistedEntity.getModified()).isNull();
-		assertThat(persistedEntity.getSourceId()).isEqualTo(sourceId);
-		assertThat(persistedEntity.getSourceType()).isEqualTo(sourceType);
-		assertThat(persistedEntity.getSourceService()).isEqualTo(sourceService);
-		assertThat(persistedEntity.getSourceNamespace()).isEqualTo(sourceNamespace);
-		assertThat(persistedEntity.getTargetId()).isEqualTo(targetId);
-		assertThat(persistedEntity.getTargetType()).isEqualTo(targetType);
-		assertThat(persistedEntity.getTargetService()).isEqualTo(targetService);
-		assertThat(persistedEntity.getTargetNamespace()).isEqualTo(targetNamespace);
+		assertThat(persistedEntity.getSource().getResourceId()).isEqualTo(sourceId);
+		assertThat(persistedEntity.getSource().getType()).isEqualTo(sourceType);
+		assertThat(persistedEntity.getSource().getService()).isEqualTo(sourceService);
+		assertThat(persistedEntity.getSource().getNamespace()).isEqualTo(sourceNamespace);
+		assertThat(persistedEntity.getTarget().getResourceId()).isEqualTo(targetId);
+		assertThat(persistedEntity.getTarget().getType()).isEqualTo(targetType);
+		assertThat(persistedEntity.getTarget().getService()).isEqualTo(targetService);
+		assertThat(persistedEntity.getTarget().getNamespace()).isEqualTo(targetNamespace);
 
 	}
 
@@ -81,14 +84,18 @@ class RelationRepositoryTest {
 
 		final var entity = repository.findById("1");
 		final var newSourceNamespace = "newSourceNamespace";
+		final var newTyp = "newType";
 
-		entity.get().setSourceNamespace(newSourceNamespace);
+		entity.get().getSource().setNamespace(newSourceNamespace);
+		entity.get().setType(newTyp);
 		final var updatedEntity = repository.save(entity.get());
 		repository.flush();
 
 		assertThat(updatedEntity).isNotNull();
-		assertThat(updatedEntity.getSourceNamespace()).isEqualTo(newSourceNamespace);
+		assertThat(updatedEntity.getType()).isEqualTo(newTyp);
 		assertThat(updatedEntity.getModified()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
+		assertThat(updatedEntity.getSource().getNamespace()).isEqualTo(newSourceNamespace);
+		assertThat(updatedEntity.getSource().getModified()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
 	}
 
 	@Test
@@ -113,25 +120,25 @@ class RelationRepositoryTest {
 	@Test
 	void readWithSpecification() {
 
-		final Specification<RelationEntity> specification = filterSpecificationConverter.convert("(sourceId : 'source_id-2')");
+		final Specification<RelationEntity> specification = filterSpecificationConverter.convert("(source.resourceId : 'source_id-2')");
 		final Pageable pageable = PageRequest.of(0, 10);
 
 		final var relations = repository.findAll(specification, pageable);
 
 		assertThat(relations).isNotNull();
 		assertThat(relations.getTotalElements()).isEqualTo(1);
-		assertThat(relations).extracting(RelationEntity::getId, RelationEntity::getMunicipalityId, RelationEntity::getSourceId).containsExactly(
-			tuple("2", "2281", "source_id-2"));
+		assertThat(relations).extracting(RelationEntity::getId, RelationEntity::getMunicipalityId).containsExactly(
+			tuple("2", "2281"));
 	}
 
 	@Test
 	void readWithSpecificationNotFound() {
-		final Specification<RelationEntity> specification = filterSpecificationConverter.convert("(sourceId : 'DOES_NOT_EXIST')");
+		final Specification<RelationEntity> specification = filterSpecificationConverter.convert("(source.resourceId : 'DOES_NOT_EXIST')");
 		final Pageable pageable = PageRequest.of(0, 10);
 
 		final var relations = repository.findAll(specification, pageable);
 
 		assertThat(relations).isNotNull();
-		assertThat(relations.getTotalElements()).isEqualTo(0);
+		assertThat(relations.getTotalElements()).isZero();
 	}
 }

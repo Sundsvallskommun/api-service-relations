@@ -1,19 +1,24 @@
 package se.sundsvall.relations.api;
 
 import se.sundsvall.relations.api.model.Relation;
+import se.sundsvall.relations.api.model.ResourceIdentifier;
 
 public class RelationTestUtil {
 
 	public static Relation createRelationInstance() {
 		return Relation.builder()
-			.withSourceId("sourceId")
-			.withSourceService("sourceService")
-			.withSourceNamespace("sourceNamespace")
-			.withSourceType("sourceType")
-			.withTargetId("targetId")
-			.withTargetService("targetService")
-			.withTargetNamespace("targetNamespace")
-			.withTargetType("targetType")
+			.withSource(ResourceIdentifier.builder()
+				.withResourceId("sourceId")
+				.withService("sourceService")
+				.withNamespace("sourceNamespace")
+				.withType("sourceType")
+				.build())
+			.withTarget(ResourceIdentifier.builder()
+				.withResourceId("targetId")
+				.withService("targetService")
+				.withNamespace("targetNamespace")
+				.withType("targetType")
+				.build())
 			.withType("type")
 			.build();
 	}

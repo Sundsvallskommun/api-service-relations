@@ -4,12 +4,18 @@ import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.hibernate.annotations.TimeZoneStorageType.NORMALIZE;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import lombok.AllArgsConstructor;
@@ -24,10 +30,17 @@ import org.hibernate.annotations.UuidGenerator;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "relation")
+@Table(name = "relation",
+	uniqueConstraints = {
+		@UniqueConstraint(name = "uq_relation_resource_source_identifier_id", columnNames = {
+			"resource_source_identifier_id"
+		}),
+		@UniqueConstraint(name = "uq_relation_counter_resource_target_identifier_id", columnNames = {
+			"resource_target_identifier_id"
+		})
+	})
 public class RelationEntity {
 
-	// Relation
 	@Id
 	@UuidGenerator
 	@Column(name = "id")
@@ -47,31 +60,13 @@ public class RelationEntity {
 	@TimeZoneStorage(NORMALIZE)
 	private OffsetDateTime modified;
 
-	// Source
-	@Column(name = "source_id", nullable = false)
-	private String sourceId;
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@JoinColumn(name = "resource_source_identifier_id", nullable = false, foreignKey = @ForeignKey(name = "fk_relation_source_resource_identifier"))
+	private ResourceIdentifierEntity source;
 
-	@Column(name = "source_type", nullable = false)
-	private String sourceType;
-
-	@Column(name = "source_service", nullable = false)
-	private String sourceService;
-
-	@Column(name = "source_namespace")
-	private String sourceNamespace;
-
-	// Target
-	@Column(name = "target_id", nullable = false)
-	private String targetId;
-
-	@Column(name = "target_type", nullable = false)
-	private String targetType;
-
-	@Column(name = "target_service", nullable = false)
-	private String targetService;
-
-	@Column(name = "target_namespace")
-	private String targetNamespace;
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@JoinColumn(name = "resource_target_identifier_id", nullable = false, foreignKey = @ForeignKey(name = "fk_relation_target_resource_identifier"))
+	private ResourceIdentifierEntity target;
 
 	@PrePersist
 	void onCreate() {
