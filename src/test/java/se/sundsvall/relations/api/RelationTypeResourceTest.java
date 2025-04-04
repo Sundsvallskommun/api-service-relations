@@ -26,7 +26,9 @@ import se.sundsvall.relations.service.RelationTypeService;
 class RelationTypeResourceTest {
 
 	private static final String TYPE = "type";
+	private static final String TYPE_DISPLAY_NAME = "typeDisplayName";
 	private static final String COUNTER_TYPE = "counterType";
+	private static final String COUNTER_TYPE_DISPLAY_NAME = "counterTypeDisplayName";
 
 	@MockitoBean
 	private RelationTypeService serviceMock;
@@ -37,7 +39,12 @@ class RelationTypeResourceTest {
 	@Test
 	void createRelationType() {
 
-		final var relationType = RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
+		final var relationType = RelationType.builder()
+			.withType(TYPE)
+			.withTypeDisplayName(TYPE_DISPLAY_NAME)
+			.withCounterType(COUNTER_TYPE)
+			.withCounterTypeDisplayName(COUNTER_TYPE_DISPLAY_NAME)
+			.build();
 
 		when(serviceMock.createType(any())).thenReturn(TYPE);
 
@@ -56,7 +63,12 @@ class RelationTypeResourceTest {
 
 	@Test
 	void getRelationType() {
-		final var relationType = RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
+		final var relationType = RelationType.builder()
+			.withType(TYPE)
+			.withTypeDisplayName(TYPE_DISPLAY_NAME)
+			.withCounterType(COUNTER_TYPE)
+			.withCounterTypeDisplayName(COUNTER_TYPE_DISPLAY_NAME)
+			.build();
 
 		when(serviceMock.getType(any())).thenReturn(relationType);
 

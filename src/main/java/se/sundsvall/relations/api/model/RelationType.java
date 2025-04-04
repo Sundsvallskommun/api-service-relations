@@ -14,6 +14,12 @@ public class RelationType {
 	@NotBlank
 	private String type;
 
+	@Schema(description = "Display value", example = "Duplicates")
+	private String typeDisplayName;
+
 	@Schema(description = "Inverse value of type (if applicable)", example = "IS DUPLICATED BY")
 	private String counterType;
+
+	@Schema(description = "Display value", example = "Is duplicated by")
+	private String counterTypeDisplayName;
 }
