@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.Entity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springdoc.core.annotations.ParameterObject;
@@ -40,6 +39,7 @@ import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.relations.api.model.Relation;
 import se.sundsvall.relations.api.model.RelationPageParameters;
 import se.sundsvall.relations.api.model.RelationPagedResponse;
+import se.sundsvall.relations.integration.db.model.RelationEntity;
 import se.sundsvall.relations.service.RelationService;
 
 @RestController
@@ -90,10 +90,8 @@ class RelationResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "Syntax description: [spring-filter](https://github.com/turkraft/spring-filter/blob/85730f950a5f8623159cc0eb4d737555f9382bb7/README.md#syntax)",
 			example = "sourceId:'SUPPORT-CASE-ID' or targetId:'SUPPORT-CASE-ID'",
-			schema = @Schema(implementation = String.class)) @Filter final Specification<? extends Entity> filter,
+			schema = @Schema(implementation = String.class)) @Filter final Specification<RelationEntity> filter,
 		@ParameterObject final RelationPageParameters pageParameters) {
-
-		// TODO: change Specification to match entity when it's implemented
 
 		return ok(service.findRelations(municipalityId, filter, pageParameters));
 	}
