@@ -3,7 +3,6 @@ package se.sundsvall.relations.service;
 import static org.zalando.problem.Status.NOT_FOUND;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -21,11 +20,13 @@ public class RelationService {
 
 	private static final String NOT_FOUND_MSG = "Relation with id '%s' not found";
 
-	@Autowired
 	private RelationRepository relationRepository;
+	private RelationMapper mapper;
 
-	@Autowired
-	RelationMapper mapper;
+	public RelationService(RelationRepository relationRepository, RelationMapper mapper) {
+		this.relationRepository = relationRepository;
+		this.mapper = mapper;
+	}
 
 	public String createRelation(String municipalityId, Relation relation) {
 		return relationRepository.save(mapper.toRelationEntity(municipalityId, relation)).getId();
