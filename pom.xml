@@ -86,8 +86,6 @@
 				<configuration>
 					<excludes>
 						<exclude>**/se/sundsvall/relations/Application*</exclude>
-						<!-- TODO: Remove when implemented -->
-						<exclude>**/se/sundsvall/relations/service/RelationTypeService*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

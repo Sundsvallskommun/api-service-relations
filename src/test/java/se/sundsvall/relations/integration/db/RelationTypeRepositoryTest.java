@@ -94,6 +94,14 @@ class RelationTypeRepositoryTest {
 	}
 
 	@Test
+	void existsByTypeOrCounterType() {
+		assertThat(repository.existsByTypeOrCounterType("type-1")).isTrue();
+		assertThat(repository.existsByTypeOrCounterType("counter_type-1")).isTrue();
+		assertThat(repository.existsByTypeOrCounterType("non-existing-counter-type")).isFalse();
+		assertThat(repository.existsByTypeOrCounterType("non-existing-type")).isFalse();
+	}
+
+	@Test
 	void typeConstraint() {
 		final var relationType = RelationTypeEntity.builder()
 			.withType("type-1")
