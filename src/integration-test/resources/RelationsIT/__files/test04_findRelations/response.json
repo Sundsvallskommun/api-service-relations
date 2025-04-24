@@ -1,0 +1,29 @@
+{
+	"_meta": {
+		"page": 1,
+		"limit": 100,
+		"count": 1,
+		"totalRecords": 1,
+		"totalPages": 1
+	},
+	"relations": [
+		{
+			"id": "9557fadb-14b1-4202-a933-a8ad3c0c07ab",
+			"type": "type-1",
+			"created": "2025-01-01T12:00:00+01:00",
+			"modified": "2025-01-01T14:00:00+01:00",
+			"source": {
+				"resourceId": "source_id-1",
+				"type": "source_type-1",
+				"service": "source_source-1",
+				"namespace": "source_namespace-1"
+			},
+			"target": {
+				"resourceId": "target_id-1",
+				"type": "target_type-1",
+				"service": "target_source-1",
+				"namespace": "target_namespace-1"
+			}
+		}
+	]
+}

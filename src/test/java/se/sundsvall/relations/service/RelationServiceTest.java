@@ -14,7 +14,6 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import static se.sundsvall.relations.service.RelationService.withMunicipalityId;
 
 import com.turkraft.springfilter.converter.FilterSpecificationConverter;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -35,18 +34,25 @@ import org.zalando.problem.Problem;
 import se.sundsvall.relations.api.model.Relation;
 import se.sundsvall.relations.api.model.RelationPageParameters;
 import se.sundsvall.relations.integration.db.RelationRepository;
+import se.sundsvall.relations.integration.db.RelationTypeRepository;
 import se.sundsvall.relations.integration.db.model.RelationEntity;
-import se.sundsvall.relations.integration.db.model.ResourceIdentifierEntity;
+import se.sundsvall.relations.integration.db.model.RelationTypeEntity;
 import se.sundsvall.relations.service.mapper.RelationMapper;
 
 @ExtendWith(MockitoExtension.class)
 class RelationServiceTest {
 
 	@Mock
-	private RelationRepository repositoryMock;
+	private RelationRepository relationRepositoryMock;
+
+	@Mock
+	private RelationTypeRepository relationTypeRepositoryMock;
 
 	@Mock
 	private RelationMapper mapperMock;
+
+	@Mock
+	private RelationTypeEntity relationTypeEntityMock;
 
 	@Mock
 	private Page<RelationEntity> pageMock;
@@ -60,9 +66,6 @@ class RelationServiceTest {
 	@Captor
 	private ArgumentCaptor<Pageable> pageableCaptor;
 
-	@Captor
-	private ArgumentCaptor<RelationEntity> relationCaptor;
-
 	@InjectMocks
 	private RelationService service;
 
@@ -71,18 +74,45 @@ class RelationServiceTest {
 	@Test
 	void createRelation() {
 		final var id = "id";
-		final var relation = Relation.builder().build();
+		final var type = "type";
+		final var relation = Relation.builder().withType(type).build();
 		final var entity = RelationEntity.builder().build();
+		final var inverseEntity = RelationEntity.builder().build();
 
-		when(mapperMock.toRelationEntity(any(), any())).thenReturn(entity);
-		when(repositoryMock.save(any())).thenReturn(RelationEntity.builder().withId(id).build());
+		when(relationTypeRepositoryMock.findByName(any())).thenReturn(Optional.of(relationTypeEntityMock));
+		when(mapperMock.toRelationEntity(any(), any(), any())).thenReturn(entity);
+		when(relationTypeEntityMock.getCounterType()).thenReturn(RelationTypeEntity.builder().build());
+		when(mapperMock.toInverseRelationEntity(any())).thenReturn(inverseEntity);
+		when(relationRepositoryMock.save(any())).thenReturn(RelationEntity.builder().withId(id).build());
 
 		final var result = service.createRelation(MUNICIPALITY_ID, relation);
 
 		assertThat(result).isEqualTo(id);
-		verify(mapperMock).toRelationEntity(eq(MUNICIPALITY_ID), same(relation));
-		verify(repositoryMock).save(same(entity));
-		verifyNoMoreInteractions(repositoryMock, mapperMock);
+		verify(relationTypeRepositoryMock).findByName(type);
+		verify(mapperMock).toRelationEntity(eq(MUNICIPALITY_ID), same(relation), same(relationTypeEntityMock));
+		verify(relationTypeEntityMock).getCounterType();
+		verify(mapperMock).toInverseRelationEntity(same(entity));
+		verify(relationRepositoryMock).save(same(entity));
+		assertThat(entity.getInverseRelation()).isSameAs(inverseEntity);
+
+		verifyNoMoreInteractions(relationRepositoryMock, mapperMock, relationTypeRepositoryMock);
+	}
+
+	@Test
+	void createRelationInvalidType() {
+		final var type = "type";
+		final var relation = Relation.builder().withType(type).build();
+
+		when(relationTypeRepositoryMock.findByName(any())).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> service.createRelation("municipalityId", relation))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Bad Request: 'type' is not a valid type");
+
+		verify(relationTypeRepositoryMock).findByName(type);
+		verifyNoMoreInteractions(relationTypeRepositoryMock);
+		verifyNoInteractions(relationRepositoryMock, mapperMock);
+
 	}
 
 	@Test
@@ -96,7 +126,7 @@ class RelationServiceTest {
 		final var relation = Relation.builder().build();
 		final var entity = RelationEntity.builder().build();
 
-		when(repositoryMock.findAll(ArgumentMatchers.<Specification<RelationEntity>>any(), any(Pageable.class))).thenReturn(pageMock);
+		when(relationRepositoryMock.findAll(ArgumentMatchers.<Specification<RelationEntity>>any(), any(Pageable.class))).thenReturn(pageMock);
 		when(pageMock.stream()).thenReturn(Stream.of(entity));
 		when(pageMock.getTotalPages()).thenReturn(2);
 		when(pageMock.getTotalElements()).thenReturn(3L);
@@ -108,7 +138,7 @@ class RelationServiceTest {
 
 		final var result = service.findRelations(MUNICIPALITY_ID, filter, page);
 
-		verify(repositoryMock).findAll(specificationCaptor.capture(), pageableCaptor.capture());
+		verify(relationRepositoryMock).findAll(specificationCaptor.capture(), pageableCaptor.capture());
 		verify(mapperMock).toRelation(same(entity));
 		verify(pageMock).stream();
 		verify(pageMock).getTotalPages();
@@ -117,7 +147,7 @@ class RelationServiceTest {
 		verify(pageMock).getSize();
 		verify(pageMock).getNumber();
 		verify(pageMock, times(2)).getSort();
-		verifyNoMoreInteractions(repositoryMock, pageMock, mapperMock);
+		verifyNoMoreInteractions(relationRepositoryMock, pageMock, mapperMock);
 
 		assertThat(result.getRelations()).containsExactly(relation);
 		assertThat(result.getMetaData().getTotalPages()).isEqualTo(2);
@@ -135,45 +165,61 @@ class RelationServiceTest {
 	@Test
 	void saveRelation() {
 		final var id = "id";
-		final var created = OffsetDateTime.now();
-		final var modified = OffsetDateTime.now().plusDays(1);
-		final var sourceModified = OffsetDateTime.now().plusDays(2);
-		final var targetModified = OffsetDateTime.now().plusDays(3);
-		final var initialEntity = RelationEntity.builder()
+		final var type = "type";
+		final var relation = Relation.builder()
 			.withId(id)
-			.withCreated(created)
-			.withModified(modified)
-			.withSource(ResourceIdentifierEntity.builder().withModified(sourceModified).build())
-			.withTarget(ResourceIdentifierEntity.builder().withModified(targetModified).build())
+			.withType(type)
 			.build();
-		final var requestRelation = Relation.builder().withId(id).build();
+		final var entity = RelationEntity.builder().build();
+		final var savedEntity = RelationEntity.builder().build();
 		final var responseRelation = Relation.builder().build();
-		final var replacementEntity = RelationEntity.builder()
-			.withSource(ResourceIdentifierEntity.builder().build())
-			.withTarget(ResourceIdentifierEntity.builder().build())
-			.build();
-		final var resultEntity = RelationEntity.builder().build();
 
-		when(repositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(initialEntity));
-		when(mapperMock.toRelationEntity(any(), any())).thenReturn(replacementEntity);
-		when(repositoryMock.save(any())).thenReturn(resultEntity);
+		when(relationRepositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(entity));
+		when(relationTypeRepositoryMock.findByName(any())).thenReturn(Optional.of(relationTypeEntityMock));
+		when(relationRepositoryMock.save(any())).thenReturn(savedEntity);
 		when(mapperMock.toRelation(any())).thenReturn(responseRelation);
 
-		final var result = service.saveRelation(MUNICIPALITY_ID, requestRelation);
+		final var result = service.saveRelation(MUNICIPALITY_ID, relation);
 
 		assertThat(result).isSameAs(responseRelation);
-		verify(repositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
-		verify(mapperMock).toRelationEntity(eq(MUNICIPALITY_ID), same(requestRelation));
-		verify(repositoryMock).save(relationCaptor.capture());
-		verify(mapperMock).toRelation(same(resultEntity));
+		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
+		verify(relationTypeRepositoryMock).findByName(type);
+		verify(mapperMock).updateRelationEntity(same(entity), same(relation), same(relationTypeEntityMock));
+		verify(relationTypeEntityMock).getCounterType();
+		verify(mapperMock).toRelation(same(savedEntity));
 
-		assertThat(relationCaptor.getValue()).isSameAs(replacementEntity);
-		assertThat(relationCaptor.getValue().getId()).isEqualTo(id);
-		assertThat(relationCaptor.getValue().getCreated()).isEqualTo(created);
-		assertThat(relationCaptor.getValue().getModified()).isEqualTo(modified);
-		assertThat(relationCaptor.getValue().getSource().getModified()).isEqualTo(sourceModified);
-		assertThat(relationCaptor.getValue().getTarget().getModified()).isEqualTo(targetModified);
-		verifyNoMoreInteractions(repositoryMock, mapperMock);
+		verifyNoMoreInteractions(relationRepositoryMock, mapperMock, relationTypeRepositoryMock);
+	}
+
+	@Test
+	void saveRelationUpdateFromTwoWayRelationToOnewayRelation() {
+		final var id = "id";
+		final var type = "type";
+		final var relation = Relation.builder()
+			.withId(id)
+			.withType(type)
+			.build();
+		final var inverseEntity = RelationEntity.builder().build();
+		final var entity = RelationEntity.builder().withInverseRelation(inverseEntity).build();
+		final var savedEntity = RelationEntity.builder().build();
+		final var responseRelation = Relation.builder().build();
+
+		when(relationRepositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(entity));
+		when(relationTypeRepositoryMock.findByName(any())).thenReturn(Optional.of(relationTypeEntityMock));
+		when(relationRepositoryMock.save(any())).thenReturn(savedEntity);
+		when(mapperMock.toRelation(any())).thenReturn(responseRelation);
+
+		final var result = service.saveRelation(MUNICIPALITY_ID, relation);
+
+		assertThat(result).isSameAs(responseRelation);
+		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
+		verify(relationTypeRepositoryMock).findByName(type);
+		verify(mapperMock).updateRelationEntity(same(entity), same(relation), same(relationTypeEntityMock));
+		verify(relationTypeEntityMock).getCounterType();
+		verify(relationRepositoryMock).delete(same(inverseEntity));
+		verify(mapperMock).toRelation(same(savedEntity));
+
+		verifyNoMoreInteractions(relationRepositoryMock, mapperMock, relationTypeRepositoryMock);
 	}
 
 	@Test
@@ -184,8 +230,24 @@ class RelationServiceTest {
 			.isInstanceOf(Problem.class)
 			.hasMessage("Not Found: Relation with id 'id' not found");
 
-		verify(repositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(repositoryMock);
+		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
+		verifyNoMoreInteractions(relationRepositoryMock);
+		verifyNoInteractions(mapperMock, relationTypeRepositoryMock);
+	}
+
+	@Test
+	void saveRelationTypeNotFound() {
+		final var id = "id";
+		final var type = "type";
+		when(relationRepositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(RelationEntity.builder().build()));
+
+		assertThatThrownBy(() -> service.saveRelation(MUNICIPALITY_ID, Relation.builder().withId(id).withType(type).build()))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Bad Request: 'type' is not a valid type");
+
+		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
+		verify(relationTypeRepositoryMock).findByName(type);
+		verifyNoMoreInteractions(relationRepositoryMock, relationTypeRepositoryMock);
 		verifyNoInteractions(mapperMock);
 	}
 
@@ -194,12 +256,12 @@ class RelationServiceTest {
 		final var id = "id";
 		final var entity = RelationEntity.builder().build();
 
-		when(repositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(entity));
+		when(relationRepositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(entity));
 
 		service.deleteRelation(MUNICIPALITY_ID, id);
 
-		verify(repositoryMock).delete(same(entity));
-		verifyNoMoreInteractions(repositoryMock);
+		verify(relationRepositoryMock).delete(same(entity));
+		verifyNoMoreInteractions(relationRepositoryMock);
 		verifyNoInteractions(mapperMock);
 	}
 
@@ -211,9 +273,9 @@ class RelationServiceTest {
 			.isInstanceOf(Problem.class)
 			.hasMessage("Not Found: Relation with id 'id' not found");
 
-		verify(repositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
+		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
 		verifyNoInteractions(mapperMock);
-		verifyNoMoreInteractions(repositoryMock);
+		verifyNoMoreInteractions(relationRepositoryMock);
 	}
 
 	@Test
@@ -222,15 +284,15 @@ class RelationServiceTest {
 		final var entity = RelationEntity.builder().build();
 		final var relation = Relation.builder().build();
 
-		when(repositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(entity));
+		when(relationRepositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(entity));
 		when(mapperMock.toRelation(any())).thenReturn(relation);
 
 		final var result = service.getRelation(MUNICIPALITY_ID, id);
 
 		assertThat(result).isSameAs(relation);
-		verify(repositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
+		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
 		verify(mapperMock).toRelation(same(entity));
-		verifyNoMoreInteractions(repositoryMock, mapperMock);
+		verifyNoMoreInteractions(relationRepositoryMock, mapperMock);
 	}
 
 	@Test
@@ -241,8 +303,8 @@ class RelationServiceTest {
 			.isInstanceOf(Problem.class)
 			.hasMessage("Not Found: Relation with id 'id' not found");
 
-		verify(repositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
+		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
 		verifyNoInteractions(mapperMock);
-		verifyNoMoreInteractions(repositoryMock);
+		verifyNoMoreInteractions(relationRepositoryMock);
 	}
 }

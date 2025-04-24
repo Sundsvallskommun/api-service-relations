@@ -11,23 +11,33 @@ public class RelationTypeMapper {
 		if (relationType == null) {
 			return null;
 		}
-		return RelationTypeEntity.builder()
-			.withType(relationType.getType())
-			.withTypeDisplayName(relationType.getTypeDisplayName())
-			.withCounterType(relationType.getCounterType())
-			.withCounterTypeDisplayName(relationType.getCounterTypeDisplayName())
+		var relationTypeEntity = RelationTypeEntity.builder()
+			.withName(relationType.getName())
+			.withDisplayName(relationType.getDisplayName())
 			.build();
+
+		if (relationType.getCounterName() != null) {
+			relationTypeEntity.setCounterType(RelationTypeEntity.builder()
+				.withName(relationType.getCounterName())
+				.withDisplayName(relationType.getCounterDisplayName())
+				.withCounterType(relationTypeEntity)
+				.build());
+		}
+		return relationTypeEntity;
 	}
 
 	public RelationType toRelationType(RelationTypeEntity relationTypeEntity) {
 		if (relationTypeEntity == null) {
 			return null;
 		}
-		return RelationType.builder()
-			.withType(relationTypeEntity.getType())
-			.withTypeDisplayName(relationTypeEntity.getTypeDisplayName())
-			.withCounterType(relationTypeEntity.getCounterType())
-			.withCounterTypeDisplayName(relationTypeEntity.getCounterTypeDisplayName())
+		var relationType = RelationType.builder()
+			.withName(relationTypeEntity.getName())
+			.withDisplayName(relationTypeEntity.getDisplayName())
 			.build();
+		if (relationTypeEntity.getCounterType() != null) {
+			relationType.setCounterName(relationTypeEntity.getCounterType().getName());
+			relationType.setCounterDisplayName(relationTypeEntity.getCounterType().getDisplayName());
+		}
+		return relationType;
 	}
 }

@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.zalando.problem.ThrowableProblem;
 import se.sundsvall.relations.api.model.RelationType;
+import se.sundsvall.relations.integration.db.RelationRepository;
 import se.sundsvall.relations.integration.db.RelationTypeRepository;
 import se.sundsvall.relations.integration.db.model.RelationTypeEntity;
 import se.sundsvall.relations.service.mapper.RelationTypeMapper;
@@ -39,110 +40,113 @@ class RelationTypeServiceTest {
 	private RelationTypeRepository relationTypeRepositoryMock;
 
 	@Mock
+	private RelationRepository relationRepositoryMock;
+
+	@Mock
 	private RelationTypeMapper mapperMock;
 
 	@InjectMocks
 	private RelationTypeService relationTypeService;
 
 	@Test
-	void createType_shouldReturnIdOnSuccess() {
-		final var relationType = RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
-		final var entity = RelationTypeEntity.builder().withId(ID).withType(TYPE).withCounterType(COUNTER_TYPE).build();
+	void createType_shouldReturnNameOnSuccess() {
+		final var relationType = RelationType.builder().withName(TYPE).withCounterName(COUNTER_TYPE).build();
+		final var entity = RelationTypeEntity.builder().withId(ID).withName(TYPE).withCounterType(RelationTypeEntity.builder().withName(COUNTER_TYPE).build()).build();
 
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(TYPE)).thenReturn(false);
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(COUNTER_TYPE)).thenReturn(false);
+		when(relationTypeRepositoryMock.existsByName(TYPE)).thenReturn(false);
+		when(relationTypeRepositoryMock.existsByName(COUNTER_TYPE)).thenReturn(false);
 		when(mapperMock.toRelationTypeEntity(any())).thenReturn(entity);
 		when(relationTypeRepositoryMock.save(any())).thenReturn(entity);
 
 		final var result = relationTypeService.createType(relationType);
 
-		assertEquals(ID, result);
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(TYPE));
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(COUNTER_TYPE));
+		assertEquals(TYPE, result);
+		verify(relationTypeRepositoryMock).existsByName(same(TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(COUNTER_TYPE));
 		verify(relationTypeRepositoryMock).save(same(entity));
 		verify(mapperMock).toRelationTypeEntity(same(relationType));
 	}
 
 	@Test
 	void createType_shouldThrowConflictOnSameTypeAndCounterType() {
-		final var relationType = RelationType.builder().withType(TYPE).withCounterType(TYPE).build();
+		final var relationType = RelationType.builder().withName(TYPE).withCounterName(TYPE).build();
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.createType(relationType));
 
 		assertEquals(CONFLICT, exception.getStatus());
 		assertEquals("Conflict: Type and counter type cannot be the same: 'TYPE'", exception.getMessage());
-		verify(relationTypeRepositoryMock, never()).existsByTypeOrCounterType(anyString());
+		verify(relationTypeRepositoryMock, never()).existsByName(anyString());
 		verify(relationTypeRepositoryMock, never()).save(any());
 		verify(mapperMock, never()).toRelationTypeEntity(any());
 	}
 
 	@Test
 	void createType_shouldThrowConflictOnExistingType() {
-		final var relationType = RelationType.builder().withType(TYPE).withCounterType(OTHER_COUNTER_TYPE).build();
+		final var relationType = RelationType.builder().withName(TYPE).withCounterName(OTHER_COUNTER_TYPE).build();
 
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(TYPE)).thenReturn(true);
+		when(relationTypeRepositoryMock.existsByName(TYPE)).thenReturn(true);
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.createType(relationType));
 
 		assertEquals(CONFLICT, exception.getStatus());
 		assertEquals("Conflict: Value 'TYPE' already exists as a type or counter type.", exception.getMessage());
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(TYPE));
 		verify(relationTypeRepositoryMock, never()).save(any());
 		verify(mapperMock, never()).toRelationTypeEntity(any());
 	}
 
 	@Test
 	void createType_shouldThrowConflictOnExistingCounterType() {
-		final var relationType = RelationType.builder().withType(OTHER_TYPE).withCounterType(COUNTER_TYPE).build();
+		final var relationType = RelationType.builder().withName(OTHER_TYPE).withCounterName(COUNTER_TYPE).build();
 
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(OTHER_TYPE)).thenReturn(false);
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(COUNTER_TYPE)).thenReturn(true);
+		when(relationTypeRepositoryMock.existsByName(OTHER_TYPE)).thenReturn(false);
+		when(relationTypeRepositoryMock.existsByName(COUNTER_TYPE)).thenReturn(true);
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.createType(relationType));
 
 		assertEquals(CONFLICT, exception.getStatus());
 		assertEquals("Conflict: Value 'COUNTER_TYPE' already exists as a type or counter type.", exception.getMessage());
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(OTHER_TYPE));
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(COUNTER_TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(OTHER_TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(COUNTER_TYPE));
 		verify(relationTypeRepositoryMock, never()).save(any());
 		verify(mapperMock, never()).toRelationTypeEntity(any());
 	}
 
 	@Test
 	void getType_shouldReturnRelationTypeIfExists() {
-		final var entity = RelationTypeEntity.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
-		final var relationType = RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
+		final var entity = RelationTypeEntity.builder().withName(TYPE).build();
+		final var relationType = RelationType.builder().withName(TYPE).build();
 
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.of(entity));
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(entity));
 		when(mapperMock.toRelationType(any())).thenReturn(relationType);
 
 		final var result = relationTypeService.getType(TYPE);
 
 		assertThat(result).isSameAs(relationType);
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
 		verify(mapperMock).toRelationType(same(entity));
 	}
 
 	@Test
 	void getType_shouldThrowNotFoundIfNotExists() {
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.empty());
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.empty());
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.getType(TYPE));
 
 		assertEquals(NOT_FOUND, exception.getStatus());
 		assertEquals("Not Found: Relation type with type 'TYPE' not found", exception.getMessage());
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
 		verify(mapperMock, never()).toRelationType(any());
 	}
 
 	@Test
 	void getAllTypes_shouldReturnListOfRelationTypes() {
 		final var entityList = List.of(
-			RelationTypeEntity.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build(),
-			RelationTypeEntity.builder().withType(OTHER_TYPE).withCounterType(OTHER_COUNTER_TYPE).build());
+			RelationTypeEntity.builder().withName(TYPE).build(),
+			RelationTypeEntity.builder().withName(OTHER_TYPE).build());
 		final var relationTypeList = List.of(
-			RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build(),
-			RelationType.builder().withType(OTHER_TYPE).withCounterType(OTHER_COUNTER_TYPE).build());
+			RelationType.builder().withName(TYPE).withCounterName(COUNTER_TYPE).build(),
+			RelationType.builder().withName(OTHER_TYPE).withCounterName(OTHER_COUNTER_TYPE).build());
 
 		when(relationTypeRepositoryMock.findAll()).thenReturn(entityList);
 		when(mapperMock.toRelationType(entityList.get(0))).thenReturn(relationTypeList.get(0));
@@ -158,39 +162,39 @@ class RelationTypeServiceTest {
 
 	@Test
 	void deleteRelationType_shouldDeleteIfExists() {
-		final var entity = RelationTypeEntity.builder().withType(TYPE).build();
+		final var entity = RelationTypeEntity.builder().withName(TYPE).build();
 
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.of(entity));
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(entity));
 
 		relationTypeService.deleteRelationType(TYPE);
 
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
 		verify(relationTypeRepositoryMock).delete(same(entity));
 	}
 
 	@Test
 	void deleteRelationType_shouldThrowNotFoundIfNotExists() {
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.empty());
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.empty());
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.deleteRelationType(TYPE));
 
 		assertEquals(NOT_FOUND, exception.getStatus());
 		assertEquals("Not Found: Relation type with type 'TYPE' not found", exception.getMessage());
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
 		verify(relationTypeRepositoryMock, never()).delete(any());
 	}
 
 	@Test
 	void saveRelationType_shouldUpdateIfExists() {
-		final var existingEntity = RelationTypeEntity.builder().withId(ID).withType(TYPE).withCounterType(COUNTER_TYPE).build();
-		final var relationTypeToSave = RelationType.builder().withType(OTHER_TYPE).withCounterType(OTHER_COUNTER_TYPE).build();
-		final var updatedEntity = RelationTypeEntity.builder().withId(ID).withType(OTHER_TYPE).withCounterType(OTHER_COUNTER_TYPE).build();
-		final var mappedEntity = RelationTypeEntity.builder().withType(OTHER_TYPE).withCounterType(OTHER_COUNTER_TYPE).build();
-		final var updatedRelationType = RelationType.builder().withType(OTHER_TYPE).withCounterType(OTHER_COUNTER_TYPE).build();
+		final var existingEntity = RelationTypeEntity.builder().withId(ID).withName(TYPE).build();
+		final var relationTypeToSave = RelationType.builder().withName(OTHER_TYPE).withCounterName(OTHER_COUNTER_TYPE).build();
+		final var updatedEntity = RelationTypeEntity.builder().withId(ID).withName(OTHER_TYPE).build();
+		final var mappedEntity = RelationTypeEntity.builder().withName(OTHER_TYPE).build();
+		final var updatedRelationType = RelationType.builder().withName(OTHER_TYPE).withCounterName(OTHER_COUNTER_TYPE).build();
 
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.of(existingEntity));
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(OTHER_TYPE)).thenReturn(false);
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(OTHER_COUNTER_TYPE)).thenReturn(false);
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(existingEntity));
+		when(relationTypeRepositoryMock.existsByName(OTHER_TYPE)).thenReturn(false);
+		when(relationTypeRepositoryMock.existsByName(OTHER_COUNTER_TYPE)).thenReturn(false);
 		when(relationTypeRepositoryMock.save(any())).thenReturn(updatedEntity);
 		when(mapperMock.toRelationType(any())).thenReturn(updatedRelationType);
 		when(mapperMock.toRelationTypeEntity(relationTypeToSave)).thenReturn(mappedEntity);
@@ -200,9 +204,9 @@ class RelationTypeServiceTest {
 		final var result = relationTypeService.saveRelationType(TYPE, relationTypeToSave);
 
 		assertEquals(updatedRelationType, result);
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(OTHER_TYPE));
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(OTHER_COUNTER_TYPE));
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(OTHER_TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(OTHER_COUNTER_TYPE));
 		verify(mapperMock).toRelationTypeEntity(same(relationTypeToSave));
 		verify(relationTypeRepositoryMock).save(argumentCaptor.capture());
 		verify(mapperMock).toRelationType(same(updatedEntity));
@@ -215,16 +219,16 @@ class RelationTypeServiceTest {
 
 	@Test
 	void saveRelationType_shouldThrowNotFoundIfNotExists() {
-		final var relationTypeToSave = RelationType.builder().withType(OTHER_TYPE).build();
+		final var relationTypeToSave = RelationType.builder().withName(OTHER_TYPE).build();
 
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.empty());
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.empty());
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.saveRelationType(TYPE, relationTypeToSave));
 
 		assertEquals(NOT_FOUND, exception.getStatus());
 		assertEquals("Not Found: Relation type with type 'TYPE' not found", exception.getMessage());
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
-		verify(relationTypeRepositoryMock, never()).existsByTypeOrCounterType(anyString());
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
+		verify(relationTypeRepositoryMock, never()).existsByName(anyString());
 		verify(mapperMock, never()).toRelationTypeEntity(any());
 		verify(relationTypeRepositoryMock, never()).save(any());
 		verify(mapperMock, never()).toRelationType(any());
@@ -232,19 +236,19 @@ class RelationTypeServiceTest {
 
 	@Test
 	void saveRelationType_shouldThrowConflictOnUpdateToExistingType() {
-		final var existingEntity = RelationTypeEntity.builder().withId(ID).withType(TYPE).withCounterType(COUNTER_TYPE).build();
-		final var relationTypeToSave = RelationType.builder().withType(OTHER_TYPE).withCounterType(OTHER_COUNTER_TYPE).build();
+		final var existingEntity = RelationTypeEntity.builder().withId(ID).withName(TYPE).build();
+		final var relationTypeToSave = RelationType.builder().withName(OTHER_TYPE).withCounterName(OTHER_COUNTER_TYPE).build();
 
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.of(existingEntity));
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(OTHER_TYPE)).thenReturn(true);
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(existingEntity));
+		when(relationTypeRepositoryMock.existsByName(OTHER_TYPE)).thenReturn(true);
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.saveRelationType(TYPE, relationTypeToSave));
 
 		assertEquals(CONFLICT, exception.getStatus());
 		assertEquals("Conflict: Value 'OTHER_TYPE' already exists as a type or counter type.", exception.getMessage());
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(OTHER_TYPE));
-		verify(relationTypeRepositoryMock, never()).existsByTypeOrCounterType(same(OTHER_COUNTER_TYPE));
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(OTHER_TYPE));
+		verify(relationTypeRepositoryMock, never()).existsByName(same(OTHER_COUNTER_TYPE));
 		verify(mapperMock, never()).toRelationTypeEntity(any());
 		verify(relationTypeRepositoryMock, never()).save(any());
 		verify(mapperMock, never()).toRelationType(any());
@@ -252,38 +256,68 @@ class RelationTypeServiceTest {
 
 	@Test
 	void saveRelationType_shouldThrowConflictOnUpdateToExistingCounterType() {
-		final var existingEntity = RelationTypeEntity.builder().withId(ID).withType(TYPE).withCounterType(COUNTER_TYPE).build();
-		final var relationTypeToSave = RelationType.builder().withType(OTHER_TYPE).withCounterType(OTHER_COUNTER_TYPE).build();
+		final var existingEntity = RelationTypeEntity.builder().withId(ID).withName(TYPE).build();
+		final var relationTypeToSave = RelationType.builder().withName(OTHER_TYPE).withCounterName(OTHER_COUNTER_TYPE).build();
 
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.of(existingEntity));
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(OTHER_TYPE)).thenReturn(false);
-		when(relationTypeRepositoryMock.existsByTypeOrCounterType(OTHER_COUNTER_TYPE)).thenReturn(true);
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(existingEntity));
+		when(relationTypeRepositoryMock.existsByName(OTHER_TYPE)).thenReturn(false);
+		when(relationTypeRepositoryMock.existsByName(OTHER_COUNTER_TYPE)).thenReturn(true);
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.saveRelationType(TYPE, relationTypeToSave));
 
 		assertEquals(CONFLICT, exception.getStatus());
 		assertEquals("Conflict: Value 'OTHER_COUNTER_TYPE' already exists as a type or counter type.", exception.getMessage());
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(OTHER_TYPE));
-		verify(relationTypeRepositoryMock).existsByTypeOrCounterType(same(OTHER_COUNTER_TYPE));
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(OTHER_TYPE));
+		verify(relationTypeRepositoryMock).existsByName(same(OTHER_COUNTER_TYPE));
 		verify(relationTypeRepositoryMock, never()).save(any());
 		verify(mapperMock, never()).toRelationType(any());
 	}
 
 	@Test
 	void saveRelationType_shouldThrowConflictOnSameTypeAndCounterTypeUpdate() {
-		final var existingEntity = RelationTypeEntity.builder().withId(ID).withType(TYPE).withCounterType(COUNTER_TYPE).build();
-		final var relationTypeToSave = RelationType.builder().withType(OTHER_TYPE).withCounterType(OTHER_TYPE).build();
+		final var existingEntity = RelationTypeEntity.builder().withId(ID).withName(TYPE).build();
+		final var relationTypeToSave = RelationType.builder().withName(OTHER_TYPE).withCounterName(OTHER_TYPE).build();
 
-		when(relationTypeRepositoryMock.findByType(anyString())).thenReturn(Optional.of(existingEntity));
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(existingEntity));
 
 		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.saveRelationType(TYPE, relationTypeToSave));
 
 		assertEquals(CONFLICT, exception.getStatus());
 		assertEquals("Conflict: Type and counter type cannot be the same: 'OTHER_TYPE'", exception.getMessage());
-		verify(relationTypeRepositoryMock).findByType(same(TYPE));
-		verify(relationTypeRepositoryMock, never()).existsByTypeOrCounterType(anyString());
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
+		verify(relationTypeRepositoryMock, never()).existsByName(anyString());
 		verify(mapperMock, never()).toRelationTypeEntity(any());
+		verify(relationTypeRepositoryMock, never()).save(any());
+		verify(mapperMock, never()).toRelationType(any());
+	}
+
+	@Test
+	void saveRelationType_shouldThrowConflictOnRemovalOfCounterType() {
+		final var existingCounterTypeEntity = RelationTypeEntity.builder().withName("USED").build();
+		final var existingEntity = RelationTypeEntity.builder()
+			.withId(ID)
+			.withName(TYPE)
+			.withCounterType(existingCounterTypeEntity)
+			.build();
+		final var updatedEntity = RelationTypeEntity.builder()
+			.withId(ID)
+			.withName(TYPE)
+			.build();
+
+		final var relationTypeToSave = RelationType.builder().withName(TYPE).build();
+
+		when(relationTypeRepositoryMock.findByName(anyString())).thenReturn(Optional.of(existingEntity));
+		when(mapperMock.toRelationTypeEntity(any())).thenReturn(updatedEntity);
+		when(relationRepositoryMock.existsByType(any())).thenReturn(true);
+
+		final var exception = assertThrows(ThrowableProblem.class, () -> relationTypeService.saveRelationType(TYPE, relationTypeToSave));
+
+		assertEquals(CONFLICT, exception.getStatus());
+		assertEquals("Conflict: Type 'USED' is used by one or many Relations", exception.getMessage());
+		verify(relationTypeRepositoryMock).findByName(same(TYPE));
+		verify(mapperMock).toRelationTypeEntity(same(relationTypeToSave));
+		verify(relationRepositoryMock).existsByType(same(existingCounterTypeEntity));
 		verify(relationTypeRepositoryMock, never()).save(any());
 		verify(mapperMock, never()).toRelationType(any());
 	}

@@ -1,0 +1,5 @@
+{
+	"title": "Conflict",
+	"status": 409,
+	"detail": "Type 'type-1' is used by one or many Relations"
+}

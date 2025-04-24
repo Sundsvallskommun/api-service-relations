@@ -1,0 +1,15 @@
+{
+	"type": "type-2",
+	"source": {
+		"resourceId": "source_id-1_updated",
+		"type": "source_type-1_updated",
+		"service": "source_source-1_updated",
+		"namespace": "source_namespace-1_updated"
+	},
+	"target": {
+		"resourceId": "target_id-1_updated",
+		"type": "target_type-1_updated",
+		"service": "target_source-1_updated",
+		"namespace": "target_namespace-1_updated"
+	}
+}

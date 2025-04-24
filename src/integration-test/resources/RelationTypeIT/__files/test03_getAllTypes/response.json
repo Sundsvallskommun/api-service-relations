@@ -1,0 +1,38 @@
+[
+	{
+		"name": "type-1",
+		"displayName": "type_display_name-1",
+		"counterName": "counter_type-1",
+		"counterDisplayName": "counter_type_display_name-1"
+	},
+	{
+		"name": "type-2",
+		"displayName": "type_display_name-2",
+		"counterName": "counter_type-2",
+		"counterDisplayName": "counter_type_display_name-2"
+	},
+	{
+		"name": "type-3",
+		"displayName": "type_display_name-3",
+		"counterName": "counter_type-3",
+		"counterDisplayName": "counter_type_display_name-3"
+	},
+	{
+		"name": "counter_type-1",
+		"displayName": "counter_type_display_name-1",
+		"counterName": "type-1",
+		"counterDisplayName": "type_display_name-1"
+	},
+	{
+		"name": "counter_type-2",
+		"displayName": "counter_type_display_name-2",
+		"counterName": "type-2",
+		"counterDisplayName": "type_display_name-2"
+	},
+	{
+		"name": "counter_type-3",
+		"displayName": "counter_type_display_name-3",
+		"counterName": "type-3",
+		"counterDisplayName": "type_display_name-3"
+	}
+]

@@ -1,14 +1,21 @@
 package se.sundsvall.relations.integration.db.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
 @Data
@@ -18,11 +25,11 @@ import org.hibernate.annotations.UuidGenerator;
 @Entity
 @Table(name = "relation_type",
 	uniqueConstraints = {
-		@UniqueConstraint(name = "uq_relation_type", columnNames = {
-			"type"
+		@UniqueConstraint(name = "uq_relation_type_name", columnNames = {
+			"name"
 		}),
-		@UniqueConstraint(name = "uq_relation_counter_type", columnNames = {
-			"counter_type"
+		@UniqueConstraint(name = "uq_relation_type_counter_type_id", columnNames = {
+			"counter_type_id"
 		})
 	})
 public class RelationTypeEntity {
@@ -32,15 +39,15 @@ public class RelationTypeEntity {
 	@Column(name = "id")
 	private String id;
 
-	@Column(name = "type", nullable = false)
-	private String type;
+	@Column(name = "name", nullable = false)
+	private String name;
 
-	@Column(name = "type_display_name")
-	private String typeDisplayName;
+	@Column(name = "display_name")
+	private String displayName;
 
-	@Column(name = "counter_type")
-	private String counterType;
-
-	@Column(name = "counter_type_display_name")
-	private String counterTypeDisplayName;
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@JoinColumn(name = "counter_type_id", unique = true, foreignKey = @ForeignKey(name = "fk_relation_type_counter_type_relation_type"))
+	private RelationTypeEntity counterType;
 }

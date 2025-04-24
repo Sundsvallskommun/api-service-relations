@@ -1,5 +1,6 @@
 package se.sundsvall.relations.service;
 
+import static org.zalando.problem.Status.BAD_REQUEST;
 import static org.zalando.problem.Status.NOT_FOUND;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import se.sundsvall.relations.api.model.Relation;
 import se.sundsvall.relations.api.model.RelationPageParameters;
 import se.sundsvall.relations.api.model.RelationPagedResponse;
 import se.sundsvall.relations.integration.db.RelationRepository;
+import se.sundsvall.relations.integration.db.RelationTypeRepository;
 import se.sundsvall.relations.integration.db.model.RelationEntity;
 import se.sundsvall.relations.service.mapper.RelationMapper;
 
@@ -19,17 +21,29 @@ import se.sundsvall.relations.service.mapper.RelationMapper;
 public class RelationService {
 
 	private static final String NOT_FOUND_MSG = "Relation with id '%s' not found";
+	private static final String INVALID_TYPE = "'%s' is not a valid type";
 
 	private RelationRepository relationRepository;
+	private RelationTypeRepository relationTypeRepository;
 	private RelationMapper mapper;
 
-	public RelationService(RelationRepository relationRepository, RelationMapper mapper) {
+	public RelationService(RelationRepository relationRepository, RelationTypeRepository relationTypeRepository, RelationMapper mapper) {
 		this.relationRepository = relationRepository;
+		this.relationTypeRepository = relationTypeRepository;
 		this.mapper = mapper;
 	}
 
 	public String createRelation(String municipalityId, Relation relation) {
-		return relationRepository.save(mapper.toRelationEntity(municipalityId, relation)).getId();
+		final var type = relationTypeRepository.findByName(relation.getType())
+			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, INVALID_TYPE.formatted(relation.getType())));
+
+		final var primaryRelation = mapper.toRelationEntity(municipalityId, relation, type);
+
+		if (type.getCounterType() != null) {
+			primaryRelation.setInverseRelation(mapper.toInverseRelationEntity(primaryRelation));
+		}
+
+		return relationRepository.save(primaryRelation).getId();
 	}
 
 	public RelationPagedResponse findRelations(String municipalityId, Specification<RelationEntity> filter, RelationPageParameters pageParameters) {
@@ -46,17 +60,17 @@ public class RelationService {
 	public Relation saveRelation(String municipalityId, Relation relation) {
 		final var entity = relationRepository.findByIdAndMunicipalityId(relation.getId(), municipalityId)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, NOT_FOUND_MSG.formatted(relation.getId())));
+		final var type = relationTypeRepository.findByName(relation.getType())
+			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, INVALID_TYPE.formatted(relation.getType())));
 
-		final var replacement = mapper.toRelationEntity(municipalityId, relation);
+		mapper.updateRelationEntity(entity, relation, type);
 
-		// Transfer properties not covered my mapper
-		replacement.setId(entity.getId());
-		replacement.setCreated(entity.getCreated());
-		replacement.setModified(entity.getModified());
-		replacement.getSource().setModified(entity.getSource().getModified());
-		replacement.getTarget().setModified(entity.getTarget().getModified());
+		// Update from two-way relation type to oneway relation type
+		if (type.getCounterType() == null && entity.getInverseRelation() != null) {
+			relationRepository.delete(entity.getInverseRelation());
+		}
 
-		return mapper.toRelation(relationRepository.save(replacement));
+		return mapper.toRelation(relationRepository.save(entity));
 	}
 
 	public void deleteRelation(String municipalityId, String id) {

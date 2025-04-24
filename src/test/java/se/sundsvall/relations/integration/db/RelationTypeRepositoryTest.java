@@ -27,101 +27,93 @@ class RelationTypeRepositoryTest {
 	@Test
 	void create() {
 		final var relationType = RelationTypeEntity.builder()
-			.withType("type")
-			.withTypeDisplayName("typeDisplayName")
-			.withCounterType("counterType")
-			.withCounterTypeDisplayName("counterTypeDisplayName")
+			.withName("type")
+			.withDisplayName("typeDisplayName")
 			.build();
+		final var relationCounterType = RelationTypeEntity.builder()
+			.withName("counterType")
+			.withDisplayName("counterTypeDisplayName")
+			.withCounterType(relationType)
+			.build();
+		relationType.setCounterType(relationCounterType);
 
 		final var savedEntity = repository.save(relationType);
 
 		assertThat(savedEntity).isNotNull();
 		assertThat(savedEntity.getId()).isNotNull();
-		assertThat(savedEntity.getType()).isEqualTo("type");
-		assertThat(savedEntity.getTypeDisplayName()).isEqualTo("typeDisplayName");
-		assertThat(savedEntity.getCounterType()).isEqualTo("counterType");
-		assertThat(savedEntity.getCounterTypeDisplayName()).isEqualTo("counterTypeDisplayName");
+		assertThat(savedEntity.getName()).isEqualTo("type");
+		assertThat(savedEntity.getDisplayName()).isEqualTo("typeDisplayName");
+		assertThat(savedEntity.getCounterType()).isSameAs(relationCounterType);
+		assertThat(savedEntity.getCounterType().getName()).isEqualTo("counterType");
+		assertThat(savedEntity.getCounterType().getDisplayName()).isEqualTo("counterTypeDisplayName");
 	}
 
 	@Test
 	void read() {
-		final var relationType = repository.findByType("type-1");
+		final var relationType = repository.findByName("type-1");
 
 		assertThat(relationType).isNotEmpty();
-		assertThat(relationType.get().getType()).isEqualTo("type-1");
-		assertThat(relationType.get().getTypeDisplayName()).isEqualTo("type_display_name-1");
-		assertThat(relationType.get().getCounterType()).isEqualTo("counter_type-1");
-		assertThat(relationType.get().getCounterTypeDisplayName()).isEqualTo("counter_type_display_name-1");
+		assertThat(relationType.get().getName()).isEqualTo("type-1");
+		assertThat(relationType.get().getDisplayName()).isEqualTo("type_display_name-1");
+		assertThat(relationType.get().getCounterType().getName()).isEqualTo("counter_type-1");
+		assertThat(relationType.get().getCounterType().getDisplayName()).isEqualTo("counter_type_display_name-1");
 	}
 
 	@Test
 	void update() {
-		final var relationType = repository.findByType("type-1");
+		final var relationType = repository.findByName("type-1");
 		final var newType = "newType";
-		relationType.get().setType(newType);
+		relationType.get().setName(newType);
 
 		final var updatedRelationType = repository.save(relationType.get());
 		repository.flush();
 
-		assertThat(updatedRelationType.getType()).isEqualTo(newType);
-		assertThat(relationType.get().getTypeDisplayName()).isEqualTo("type_display_name-1");
-		assertThat(relationType.get().getCounterType()).isEqualTo("counter_type-1");
-		assertThat(relationType.get().getCounterTypeDisplayName()).isEqualTo("counter_type_display_name-1");
+		assertThat(updatedRelationType.getName()).isEqualTo(newType);
+		assertThat(relationType.get().getDisplayName()).isEqualTo("type_display_name-1");
+		assertThat(relationType.get().getCounterType().getName()).isEqualTo("counter_type-1");
+		assertThat(relationType.get().getCounterType().getDisplayName()).isEqualTo("counter_type_display_name-1");
 	}
 
 	@Test
 	void delete() {
-		assertThat(repository.findByType("type-1")).isNotEmpty();
-		assertThat(repository.findByType("type-2")).isNotEmpty();
+		assertThat(repository.findByName("type-1")).isNotEmpty();
+		assertThat(repository.findByName("counter_type-1")).isNotEmpty();
+		assertThat(repository.findByName("type-3")).isNotEmpty();
+		assertThat(repository.findByName("counter_type-3")).isNotEmpty();
 
-		repository.deleteByType("type-2");
+		repository.deleteByName("type-3");
 		repository.flush();
 
-		assertThat(repository.findByType("type-1")).isNotEmpty();
-		assertThat(repository.findByType("type-2")).isEmpty();
+		assertThat(repository.findByName("type-1")).isNotEmpty();
+		assertThat(repository.findByName("counter_type-1")).isNotEmpty();
+		assertThat(repository.findByName("type-3")).isEmpty();
+		assertThat(repository.findByName("counter_type-3")).isEmpty();
 	}
 
 	@Test
-	void existsByType() {
-		assertThat(repository.existsByType("type-1")).isTrue();
-		assertThat(repository.existsByType("non-existing-type")).isFalse();
+	void deleteWhenTypeIsInUse() {
+		assertThatThrownBy(() -> {
+			repository.deleteByName("type-1");
+			repository.flush();
+		})
+			.isInstanceOf(DataIntegrityViolationException.class)
+			.hasMessageContaining("foreign key constraint");
 	}
 
 	@Test
-	void existsByCounterType() {
-		assertThat(repository.existsByCounterType("counter_type-1")).isTrue();
-		assertThat(repository.existsByCounterType("non-existing-counter-type")).isFalse();
-	}
-
-	@Test
-	void existsByTypeOrCounterType() {
-		assertThat(repository.existsByTypeOrCounterType("type-1")).isTrue();
-		assertThat(repository.existsByTypeOrCounterType("counter_type-1")).isTrue();
-		assertThat(repository.existsByTypeOrCounterType("non-existing-counter-type")).isFalse();
-		assertThat(repository.existsByTypeOrCounterType("non-existing-type")).isFalse();
+	void existsByName() {
+		assertThat(repository.existsByName("type-1")).isTrue();
+		assertThat(repository.existsByName("non-existing-type")).isFalse();
 	}
 
 	@Test
 	void typeConstraint() {
 		final var relationType = RelationTypeEntity.builder()
-			.withType("type-1")
-			.withCounterType("counterType")
+			.withName("type-1")
 			.build();
 
 		assertThatThrownBy(() -> repository.saveAndFlush(relationType))
 			.isInstanceOf(DataIntegrityViolationException.class)
-			.hasMessageContaining("constraint [uq_relation_type]");
-	}
-
-	@Test
-	void counterTypeConstraint() {
-		final var relationType = RelationTypeEntity.builder()
-			.withType("type")
-			.withCounterType("counter_type-1")
-			.build();
-
-		assertThatThrownBy(() -> repository.saveAndFlush(relationType))
-			.isInstanceOf(DataIntegrityViolationException.class)
-			.hasMessageContaining("constraint [uq_relation_counter_type]");
+			.hasMessageContaining("constraint [uq_relation_type_name]");
 	}
 }

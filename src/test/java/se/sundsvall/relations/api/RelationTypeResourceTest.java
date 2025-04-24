@@ -40,10 +40,10 @@ class RelationTypeResourceTest {
 	void createRelationType() {
 
 		final var relationType = RelationType.builder()
-			.withType(TYPE)
-			.withTypeDisplayName(TYPE_DISPLAY_NAME)
-			.withCounterType(COUNTER_TYPE)
-			.withCounterTypeDisplayName(COUNTER_TYPE_DISPLAY_NAME)
+			.withName(TYPE)
+			.withDisplayName(TYPE_DISPLAY_NAME)
+			.withCounterName(COUNTER_TYPE)
+			.withCounterDisplayName(COUNTER_TYPE_DISPLAY_NAME)
 			.build();
 
 		when(serviceMock.createType(any())).thenReturn(TYPE);
@@ -64,10 +64,10 @@ class RelationTypeResourceTest {
 	@Test
 	void getRelationType() {
 		final var relationType = RelationType.builder()
-			.withType(TYPE)
-			.withTypeDisplayName(TYPE_DISPLAY_NAME)
-			.withCounterType(COUNTER_TYPE)
-			.withCounterTypeDisplayName(COUNTER_TYPE_DISPLAY_NAME)
+			.withName(TYPE)
+			.withDisplayName(TYPE_DISPLAY_NAME)
+			.withCounterName(COUNTER_TYPE)
+			.withCounterDisplayName(COUNTER_TYPE_DISPLAY_NAME)
 			.build();
 
 		when(serviceMock.getType(any())).thenReturn(relationType);
@@ -87,8 +87,8 @@ class RelationTypeResourceTest {
 
 	@Test
 	void getAllRelationTypes() {
-		final var relationTypeFirst = RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
-		final var relationTypeSecond = RelationType.builder().withType(TYPE + "-2").withCounterType(COUNTER_TYPE + "-2").build();
+		final var relationTypeFirst = RelationType.builder().withName(TYPE).withCounterName(COUNTER_TYPE).build();
+		final var relationTypeSecond = RelationType.builder().withName(TYPE + "-2").withCounterName(COUNTER_TYPE + "-2").build();
 
 		when(serviceMock.getAllTypes()).thenReturn(List.of(relationTypeFirst, relationTypeSecond));
 
@@ -110,7 +110,7 @@ class RelationTypeResourceTest {
 
 	@Test
 	void saveRelationType() {
-		final var relationType = RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
+		final var relationType = RelationType.builder().withName(TYPE).withCounterName(COUNTER_TYPE).build();
 
 		when(serviceMock.saveRelationType(any(), any())).thenReturn(relationType);
 

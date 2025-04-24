@@ -1,0 +1,18 @@
+{
+	"id": "9557fadb-14b1-4202-a933-a8ad3c0c07ab",
+	"type": "type-2",
+	"created": "2025-01-01T12:00:00+01:00",
+	"modified": "${json-unit.any-string}",
+	"source": {
+		"resourceId": "source_id-1_updated",
+		"type": "source_type-1_updated",
+		"service": "source_source-1_updated",
+		"namespace": "source_namespace-1_updated"
+	},
+	"target": {
+		"resourceId": "target_id-1_updated",
+		"type": "target_type-1_updated",
+		"service": "target_source-1_updated",
+		"namespace": "target_namespace-1_updated"
+	}
+}
