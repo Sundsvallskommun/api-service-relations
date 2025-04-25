@@ -44,7 +44,7 @@ class RelationTypeResourceFailuresTest {
 		assertThat(response.getResponseBody().getViolations())
 			.hasSize(1)
 			.extracting("field", "message").containsExactlyInAnyOrder(
-				Tuple.tuple("type", "must not be blank"));
+				Tuple.tuple("name", "must not be blank"));
 
 		verifyNoInteractions(serviceMock);
 	}

@@ -25,10 +25,10 @@ import se.sundsvall.relations.service.RelationTypeService;
 @ActiveProfiles("junit")
 class RelationTypeResourceTest {
 
-	private static final String TYPE = "type";
-	private static final String TYPE_DISPLAY_NAME = "typeDisplayName";
-	private static final String COUNTER_TYPE = "counterType";
-	private static final String COUNTER_TYPE_DISPLAY_NAME = "counterTypeDisplayName";
+	private static final String TYPE_NAME = "TYPE_NAME";
+	private static final String TYPE_DISPLAY_NAME = "TYPE_DISPLAY_NAME";
+	private static final String COUNTER_TYPE_NAME = "COUNTER_TYPE_NAME";
+	private static final String COUNTER_TYPE_DISPLAY_NAME = "COUNTER_TYPE_DISPLAY_NAME";
 
 	@MockitoBean
 	private RelationTypeService serviceMock;
@@ -40,13 +40,13 @@ class RelationTypeResourceTest {
 	void createRelationType() {
 
 		final var relationType = RelationType.builder()
-			.withType(TYPE)
-			.withTypeDisplayName(TYPE_DISPLAY_NAME)
-			.withCounterType(COUNTER_TYPE)
-			.withCounterTypeDisplayName(COUNTER_TYPE_DISPLAY_NAME)
+			.withName(TYPE_NAME)
+			.withDisplayName(TYPE_DISPLAY_NAME)
+			.withCounterName(COUNTER_TYPE_NAME)
+			.withCounterDisplayName(COUNTER_TYPE_DISPLAY_NAME)
 			.build();
 
-		when(serviceMock.createType(any())).thenReturn(TYPE);
+		when(serviceMock.createType(any())).thenReturn(TYPE_NAME);
 
 		webTestClient.post()
 			.uri("/relation-types")
@@ -55,7 +55,7 @@ class RelationTypeResourceTest {
 			.exchange()
 			.expectStatus().isCreated()
 			.expectHeader().contentType(ALL)
-			.expectHeader().location("/relation-types/" + TYPE)
+			.expectHeader().location("/relation-types/" + TYPE_NAME)
 			.expectBody().isEmpty();
 
 		verify(serviceMock).createType(relationType);
@@ -64,16 +64,16 @@ class RelationTypeResourceTest {
 	@Test
 	void getRelationType() {
 		final var relationType = RelationType.builder()
-			.withType(TYPE)
-			.withTypeDisplayName(TYPE_DISPLAY_NAME)
-			.withCounterType(COUNTER_TYPE)
-			.withCounterTypeDisplayName(COUNTER_TYPE_DISPLAY_NAME)
+			.withName(TYPE_NAME)
+			.withDisplayName(TYPE_DISPLAY_NAME)
+			.withCounterName(COUNTER_TYPE_NAME)
+			.withCounterDisplayName(COUNTER_TYPE_DISPLAY_NAME)
 			.build();
 
 		when(serviceMock.getType(any())).thenReturn(relationType);
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/relation-types/{type}").build(Map.of("type", TYPE)))
+			.uri(uriBuilder -> uriBuilder.path("/relation-types/{type}").build(Map.of("type", TYPE_NAME)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectHeader().contentType(APPLICATION_JSON)
@@ -81,14 +81,14 @@ class RelationTypeResourceTest {
 			.returnResult()
 			.getResponseBody();
 
-		verify(serviceMock).getType(TYPE);
+		verify(serviceMock).getType(TYPE_NAME);
 		assertThat(response).isNotNull().isEqualTo(relationType);
 	}
 
 	@Test
 	void getAllRelationTypes() {
-		final var relationTypeFirst = RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
-		final var relationTypeSecond = RelationType.builder().withType(TYPE + "-2").withCounterType(COUNTER_TYPE + "-2").build();
+		final var relationTypeFirst = RelationType.builder().withName(TYPE_NAME).withCounterName(COUNTER_TYPE_NAME).build();
+		final var relationTypeSecond = RelationType.builder().withName(TYPE_NAME + "-2").withCounterName(COUNTER_TYPE_NAME + "-2").build();
 
 		when(serviceMock.getAllTypes()).thenReturn(List.of(relationTypeFirst, relationTypeSecond));
 
@@ -110,12 +110,12 @@ class RelationTypeResourceTest {
 
 	@Test
 	void saveRelationType() {
-		final var relationType = RelationType.builder().withType(TYPE).withCounterType(COUNTER_TYPE).build();
+		final var relationType = RelationType.builder().withName(TYPE_NAME).withCounterName(COUNTER_TYPE_NAME).build();
 
 		when(serviceMock.saveRelationType(any(), any())).thenReturn(relationType);
 
 		final var response = webTestClient.put()
-			.uri(uriBuilder -> uriBuilder.path("/relation-types/{type}").build(Map.of("type", TYPE + "-old-value")))
+			.uri(uriBuilder -> uriBuilder.path("/relation-types/{type}").build(Map.of("type", TYPE_NAME + "-old-value")))
 			.bodyValue(relationType)
 			.exchange()
 			.expectStatus().isOk()
@@ -124,19 +124,19 @@ class RelationTypeResourceTest {
 			.returnResult()
 			.getResponseBody();
 
-		verify(serviceMock).saveRelationType(TYPE + "-old-value", relationType);
+		verify(serviceMock).saveRelationType(TYPE_NAME + "-old-value", relationType);
 		assertThat(response).isNotNull().isEqualTo(relationType);
 	}
 
 	@Test
 	void deleteRelation() {
 		webTestClient.delete()
-			.uri(uriBuilder -> uriBuilder.path("/relation-types/{type}").build(Map.of("type", TYPE)))
+			.uri(uriBuilder -> uriBuilder.path("/relation-types/{type}").build(Map.of("type", TYPE_NAME)))
 			.exchange()
 			.expectStatus().isNoContent()
 			.expectHeader().contentType(ALL_VALUE)
 			.expectBody().isEmpty();
 
-		verify(serviceMock).deleteRelationType(TYPE);
+		verify(serviceMock).deleteRelationType(TYPE_NAME);
 	}
 }

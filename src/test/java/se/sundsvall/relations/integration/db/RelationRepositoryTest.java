@@ -30,11 +30,14 @@ class RelationRepositoryTest {
 	private RelationRepository repository;
 
 	@Autowired
+	private RelationTypeRepository typeRepository;
+
+	@Autowired
 	private FilterSpecificationConverter filterSpecificationConverter;
 
 	@Test
 	void create() {
-		final var type = "type";
+		final var type = typeRepository.findById("rt1").orElseThrow(() -> new RuntimeException("Error in test data"));
 		final var municipalityId = "municipalityId";
 		final var sourceId = "sourceId";
 		final var sourceType = "sourceType";
@@ -60,35 +63,55 @@ class RelationRepositoryTest {
 				.withNamespace(targetNamespace).build())
 			.build();
 
+		final var inverseEntity = RelationEntity.builder()
+			.withType(type.getCounterType())
+			.withMunicipalityId(municipalityId)
+			.withSource(relationEntity.getTarget())
+			.withTarget(relationEntity.getSource())
+			.withInverseRelation(relationEntity)
+			.build();
+
+		relationEntity.setInverseRelation(inverseEntity);
+
 		final var persistedEntity = repository.save(relationEntity);
 
 		assertThat(persistedEntity).isNotNull();
 		assertThat(persistedEntity.getId()).isNotNull();
-		assertThat(persistedEntity.getType()).isEqualTo(type);
+		assertThat(persistedEntity.getType().getName()).isEqualTo("type-1");
 		assertThat(persistedEntity.getMunicipalityId()).isEqualTo(municipalityId);
 		assertThat(persistedEntity.getCreated()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
 		assertThat(persistedEntity.getModified()).isNull();
+		assertThat(persistedEntity.getSource().getId()).isNotNull();
 		assertThat(persistedEntity.getSource().getResourceId()).isEqualTo(sourceId);
 		assertThat(persistedEntity.getSource().getType()).isEqualTo(sourceType);
 		assertThat(persistedEntity.getSource().getService()).isEqualTo(sourceService);
 		assertThat(persistedEntity.getSource().getNamespace()).isEqualTo(sourceNamespace);
+		assertThat(persistedEntity.getTarget().getId()).isNotNull();
 		assertThat(persistedEntity.getTarget().getResourceId()).isEqualTo(targetId);
 		assertThat(persistedEntity.getTarget().getType()).isEqualTo(targetType);
 		assertThat(persistedEntity.getTarget().getService()).isEqualTo(targetService);
 		assertThat(persistedEntity.getTarget().getNamespace()).isEqualTo(targetNamespace);
-
+		// Inverse
+		assertThat(persistedEntity.getInverseRelation().getId()).isNotNull();
+		assertThat(persistedEntity.getInverseRelation().getCreated()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
+		assertThat(persistedEntity.getInverseRelation()).isSameAs(inverseEntity);
+		assertThat(persistedEntity.getInverseRelation().getInverseRelation()).isSameAs(persistedEntity);
+		assertThat(persistedEntity.getSource().getId()).isEqualTo(persistedEntity.getInverseRelation().getTarget().getId());
+		assertThat(persistedEntity.getTarget().getId()).isEqualTo(persistedEntity.getInverseRelation().getSource().getId());
 	}
 
 	@Test
 	void update() {
 
-		final var entity = repository.findById("1");
+		final var entity = repository.findById("1").orElseThrow(() -> new RuntimeException("Error in test data"));
 		final var newSourceNamespace = "newSourceNamespace";
-		final var newTyp = "newType";
+		final var newTyp = typeRepository.findById("rt3").orElseThrow(() -> new RuntimeException("Error in test data"));
 
-		entity.get().getSource().setNamespace(newSourceNamespace);
-		entity.get().setType(newTyp);
-		final var updatedEntity = repository.save(entity.get());
+		assertThat(entity.getType().getId()).isEqualTo("rt1");
+
+		entity.getSource().setNamespace(newSourceNamespace);
+		entity.setType(newTyp);
+		final var updatedEntity = repository.save(entity);
 		repository.flush();
 
 		assertThat(updatedEntity).isNotNull();
@@ -96,17 +119,28 @@ class RelationRepositoryTest {
 		assertThat(updatedEntity.getModified()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
 		assertThat(updatedEntity.getSource().getNamespace()).isEqualTo(newSourceNamespace);
 		assertThat(updatedEntity.getSource().getModified()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
+
+		// Inverse
+		assertThat(updatedEntity.getInverseRelation().getTarget().getNamespace()).isEqualTo(newSourceNamespace);
+		assertThat(updatedEntity.getInverseRelation().getTarget().getModified()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
 	}
 
 	@Test
 	void delete() {
 
-		assertThat(repository.findById("1")).isNotEmpty();
+		assertThat(repository.findById("1")) // Primary
+			.isNotEmpty()
+			.hasValueSatisfying(relation -> relation.getType().getName().equalsIgnoreCase("type-1"));
+
+		assertThat(repository.findById("2")).isNotEmpty(); // Inverse
 
 		repository.deleteById("1");
 		repository.flush();
 
 		assertThat(repository.findById("1")).isEmpty();
+		assertThat(repository.findById("2")).isEmpty();
+		// Ensure that deletion does not cascade to RelationType
+		assertThat(typeRepository.existsByName("type-1")).isTrue();
 	}
 
 	@Test
@@ -114,7 +148,7 @@ class RelationRepositoryTest {
 		final var entity = repository.findByIdAndMunicipalityId("1", "2281");
 
 		assertThat(entity).isNotEmpty();
-		assertThat(entity.get().getType()).isEqualTo("type-1");
+		assertThat(entity.get().getType().getName()).isEqualTo("type-1");
 	}
 
 	@Test
@@ -128,7 +162,7 @@ class RelationRepositoryTest {
 		assertThat(relations).isNotNull();
 		assertThat(relations.getTotalElements()).isEqualTo(1);
 		assertThat(relations).extracting(RelationEntity::getId, RelationEntity::getMunicipalityId).containsExactly(
-			tuple("2", "2281"));
+			tuple("3", "2281"));
 	}
 
 	@Test
@@ -140,5 +174,14 @@ class RelationRepositoryTest {
 
 		assertThat(relations).isNotNull();
 		assertThat(relations.getTotalElements()).isZero();
+	}
+
+	@Test
+	void existsByType() {
+		final var rt1 = typeRepository.findById("rt1").orElseThrow(() -> new RuntimeException("Error in test data"));
+		final var rt5 = typeRepository.findById("rt5").orElseThrow(() -> new RuntimeException("Error in test data"));
+
+		assertThat(repository.existsByType(rt1)).isTrue();
+		assertThat(repository.existsByType(rt5)).isFalse();
 	}
 }
