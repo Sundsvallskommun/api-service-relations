@@ -12,26 +12,26 @@ class RelationTypeMapperTest {
 
 	private final RelationTypeMapper mapper = new RelationTypeMapper();
 
-	private static final String TYPE = "TYPE";
+	private static final String TYPE_NAME = "TYPE_NAME";
 	private static final String TYPE_DISPLAY_NAME = "Type Display Name";
-	private static final String COUNTER_TYPE = "COUNTER_TYPE";
+	private static final String COUNTER_TYPE_NAME = "COUNTER_TYPE_NAME";
 	private static final String COUNTER_TYPE_DISPLAY_NAME = "Counter Type Display Name";
 
 	@Test
 	void toRelationTypeEntity() {
 		final var relationType = RelationType.builder()
-			.withName(TYPE)
+			.withName(TYPE_NAME)
 			.withDisplayName(TYPE_DISPLAY_NAME)
-			.withCounterName(COUNTER_TYPE)
+			.withCounterName(COUNTER_TYPE_NAME)
 			.withCounterDisplayName(COUNTER_TYPE_DISPLAY_NAME)
 			.build();
 
 		final var entity = mapper.toRelationTypeEntity(relationType);
 
 		assertThat(entity).hasNoNullFieldsOrPropertiesExcept("id");
-		assertEquals(TYPE, entity.getName());
+		assertEquals(TYPE_NAME, entity.getName());
 		assertEquals(TYPE_DISPLAY_NAME, entity.getDisplayName());
-		assertEquals(COUNTER_TYPE, entity.getCounterType().getName());
+		assertEquals(COUNTER_TYPE_NAME, entity.getCounterType().getName());
 		assertEquals(COUNTER_TYPE_DISPLAY_NAME, entity.getCounterType().getDisplayName());
 	}
 
@@ -44,10 +44,10 @@ class RelationTypeMapperTest {
 	@Test
 	void toRelationType() {
 		final var entity = RelationTypeEntity.builder()
-			.withName(TYPE)
+			.withName(TYPE_NAME)
 			.withDisplayName(TYPE_DISPLAY_NAME)
 			.withCounterType(RelationTypeEntity.builder()
-				.withName(COUNTER_TYPE)
+				.withName(COUNTER_TYPE_NAME)
 				.withDisplayName(COUNTER_TYPE_DISPLAY_NAME)
 				.build())
 			.build();
@@ -55,9 +55,9 @@ class RelationTypeMapperTest {
 		final var relationType = mapper.toRelationType(entity);
 
 		assertThat(relationType).hasNoNullFieldsOrProperties();
-		assertEquals(TYPE, relationType.getName());
+		assertEquals(TYPE_NAME, relationType.getName());
 		assertEquals(TYPE_DISPLAY_NAME, relationType.getDisplayName());
-		assertEquals(COUNTER_TYPE, relationType.getCounterName());
+		assertEquals(COUNTER_TYPE_NAME, relationType.getCounterName());
 		assertEquals(COUNTER_TYPE_DISPLAY_NAME, relationType.getCounterDisplayName());
 	}
 

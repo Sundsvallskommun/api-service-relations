@@ -74,8 +74,8 @@ class RelationServiceTest {
 	@Test
 	void createRelation() {
 		final var id = "id";
-		final var type = "type";
-		final var relation = Relation.builder().withType(type).build();
+		final var typeName = "typeName";
+		final var relation = Relation.builder().withType(typeName).build();
 		final var entity = RelationEntity.builder().build();
 		final var inverseEntity = RelationEntity.builder().build();
 
@@ -88,7 +88,7 @@ class RelationServiceTest {
 		final var result = service.createRelation(MUNICIPALITY_ID, relation);
 
 		assertThat(result).isEqualTo(id);
-		verify(relationTypeRepositoryMock).findByName(type);
+		verify(relationTypeRepositoryMock).findByName(typeName);
 		verify(mapperMock).toRelationEntity(eq(MUNICIPALITY_ID), same(relation), same(relationTypeEntityMock));
 		verify(relationTypeEntityMock).getCounterType();
 		verify(mapperMock).toInverseRelationEntity(same(entity));
@@ -100,16 +100,16 @@ class RelationServiceTest {
 
 	@Test
 	void createRelationInvalidType() {
-		final var type = "type";
-		final var relation = Relation.builder().withType(type).build();
+		final var typeName = "typeName";
+		final var relation = Relation.builder().withType(typeName).build();
 
 		when(relationTypeRepositoryMock.findByName(any())).thenReturn(Optional.empty());
 
 		assertThatThrownBy(() -> service.createRelation("municipalityId", relation))
 			.isInstanceOf(Problem.class)
-			.hasMessage("Bad Request: 'type' is not a valid type");
+			.hasMessage("Bad Request: 'typeName' is not a valid type");
 
-		verify(relationTypeRepositoryMock).findByName(type);
+		verify(relationTypeRepositoryMock).findByName(typeName);
 		verifyNoMoreInteractions(relationTypeRepositoryMock);
 		verifyNoInteractions(relationRepositoryMock, mapperMock);
 
@@ -165,10 +165,10 @@ class RelationServiceTest {
 	@Test
 	void saveRelation() {
 		final var id = "id";
-		final var type = "type";
+		final var typeName = "typeName";
 		final var relation = Relation.builder()
 			.withId(id)
-			.withType(type)
+			.withType(typeName)
 			.build();
 		final var entity = RelationEntity.builder().build();
 		final var savedEntity = RelationEntity.builder().build();
@@ -183,7 +183,7 @@ class RelationServiceTest {
 
 		assertThat(result).isSameAs(responseRelation);
 		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
-		verify(relationTypeRepositoryMock).findByName(type);
+		verify(relationTypeRepositoryMock).findByName(typeName);
 		verify(mapperMock).updateRelationEntity(same(entity), same(relation), same(relationTypeEntityMock));
 		verify(relationTypeEntityMock).getCounterType();
 		verify(mapperMock).toRelation(same(savedEntity));
@@ -194,10 +194,10 @@ class RelationServiceTest {
 	@Test
 	void saveRelationUpdateFromTwoWayRelationToOnewayRelation() {
 		final var id = "id";
-		final var type = "type";
+		final var typeName = "typeName";
 		final var relation = Relation.builder()
 			.withId(id)
-			.withType(type)
+			.withType(typeName)
 			.build();
 		final var inverseEntity = RelationEntity.builder().build();
 		final var entity = RelationEntity.builder().withInverseRelation(inverseEntity).build();
@@ -213,7 +213,7 @@ class RelationServiceTest {
 
 		assertThat(result).isSameAs(responseRelation);
 		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
-		verify(relationTypeRepositoryMock).findByName(type);
+		verify(relationTypeRepositoryMock).findByName(typeName);
 		verify(mapperMock).updateRelationEntity(same(entity), same(relation), same(relationTypeEntityMock));
 		verify(relationTypeEntityMock).getCounterType();
 		verify(relationRepositoryMock).delete(same(inverseEntity));
@@ -238,15 +238,15 @@ class RelationServiceTest {
 	@Test
 	void saveRelationTypeNotFound() {
 		final var id = "id";
-		final var type = "type";
+		final var typeName = "typeName";
 		when(relationRepositoryMock.findByIdAndMunicipalityId(any(), any())).thenReturn(Optional.of(RelationEntity.builder().build()));
 
-		assertThatThrownBy(() -> service.saveRelation(MUNICIPALITY_ID, Relation.builder().withId(id).withType(type).build()))
+		assertThatThrownBy(() -> service.saveRelation(MUNICIPALITY_ID, Relation.builder().withId(id).withType(typeName).build()))
 			.isInstanceOf(Problem.class)
-			.hasMessage("Bad Request: 'type' is not a valid type");
+			.hasMessage("Bad Request: 'typeName' is not a valid type");
 
 		verify(relationRepositoryMock).findByIdAndMunicipalityId(id, MUNICIPALITY_ID);
-		verify(relationTypeRepositoryMock).findByName(type);
+		verify(relationTypeRepositoryMock).findByName(typeName);
 		verifyNoMoreInteractions(relationRepositoryMock, relationTypeRepositoryMock);
 		verifyNoInteractions(mapperMock);
 	}

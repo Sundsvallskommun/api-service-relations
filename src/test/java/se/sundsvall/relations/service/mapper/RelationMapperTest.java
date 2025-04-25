@@ -19,7 +19,7 @@ class RelationMapperTest {
 	@Test
 	void toRelationEntity() {
 		final var municipalityId = "municipalityId";
-		final var type = "type";
+		final var typeName = "typeName";
 		final var sourceResourceId = "sourceResourceId";
 		final var sourceType = "sourceType";
 		final var sourceService = "sourceService";
@@ -28,9 +28,9 @@ class RelationMapperTest {
 		final var targetType = "targetType";
 		final var targetService = "targetService";
 		final var targetNamespace = "targetNamespace";
-		final var relationType = RelationTypeEntity.builder().withName(type).build();
+		final var relationType = RelationTypeEntity.builder().withName(typeName).build();
 		final var relation = Relation.builder()
-			.withType(type)
+			.withType(typeName)
 			.withSource(ResourceIdentifier.builder()
 				.withResourceId(sourceResourceId)
 				.withService(sourceService)
@@ -65,8 +65,8 @@ class RelationMapperTest {
 	void toRelation() {
 		final var id = "id";
 		final var municipalityId = "municipalityId";
-		final var type = "type";
-		final var typeEntity = RelationTypeEntity.builder().withName(type).build();
+		final var typeName = "typeName";
+		final var typeEntity = RelationTypeEntity.builder().withName(typeName).build();
 		final var created = OffsetDateTime.now();
 		final var modified = OffsetDateTime.now().plusDays(1);
 		final var sourceModified = OffsetDateTime.now().plusDays(2);
@@ -110,7 +110,7 @@ class RelationMapperTest {
 		assertThat(relation.getId()).isEqualTo(id);
 		assertThat(relation.getCreated()).isCloseTo(OffsetDateTime.now(), within(2, SECONDS));
 		assertThat(relation.getModified()).isCloseTo(OffsetDateTime.now().plusDays(3), within(2, SECONDS));
-		assertThat(relation.getType()).isEqualTo(type);
+		assertThat(relation.getType()).isEqualTo(typeName);
 		assertThat(relation.getSource().getResourceId()).isEqualTo(sourceResourceId);
 		assertThat(relation.getSource().getService()).isEqualTo(sourceService);
 		assertThat(relation.getSource().getType()).isEqualTo(sourceType);
@@ -125,9 +125,9 @@ class RelationMapperTest {
 	void toInverseRelationEntity() {
 		final var id = "id";
 		final var municipalityId = "municipalityId";
-		final var type = "type";
+		final var typeName = "typeName";
 		final var counterTypeEntity = RelationTypeEntity.builder().build();
-		final var typeEntity = RelationTypeEntity.builder().withName(type).withCounterType(counterTypeEntity).build();
+		final var typeEntity = RelationTypeEntity.builder().withName(typeName).withCounterType(counterTypeEntity).build();
 		final var created = OffsetDateTime.now();
 		final var modified = OffsetDateTime.now().plusDays(1);
 		final var primarySource = ResourceIdentifierEntity.builder().build();
@@ -156,7 +156,7 @@ class RelationMapperTest {
 	void updateRelationEntityWithNewInverse() {
 		final var id = "id";
 		final var municipalityId = "municipalityId";
-		final var type = "type";
+		final var typeName = "typeName";
 		final var sourceResourceId = "sourceResourceId";
 		final var sourceType = "sourceType";
 		final var sourceService = "sourceService";
@@ -166,9 +166,9 @@ class RelationMapperTest {
 		final var targetService = "targetService";
 		final var targetNamespace = "targetNamespace";
 		final var counterType = RelationTypeEntity.builder().build();
-		final var relationType = RelationTypeEntity.builder().withName(type).withCounterType(counterType).build();
+		final var relationType = RelationTypeEntity.builder().withName(typeName).withCounterType(counterType).build();
 		final var relation = Relation.builder()
-			.withType(type)
+			.withType(typeName)
 			.withSource(ResourceIdentifier.builder()
 				.withResourceId(sourceResourceId)
 				.withService(sourceService)
@@ -220,7 +220,7 @@ class RelationMapperTest {
 		final var primaryId = "primaryId";
 		final var inverseId = "inverseId";
 		final var municipalityId = "municipalityId";
-		final var type = "type";
+		final var typeName = "typeName";
 		final var sourceResourceId = "sourceResourceId";
 		final var sourceType = "sourceType";
 		final var sourceService = "sourceService";
@@ -231,14 +231,14 @@ class RelationMapperTest {
 		final var targetNamespace = "targetNamespace";
 
 		final var counterType = RelationTypeEntity.builder().build();
-		final var relationType = RelationTypeEntity.builder().withName(type).withCounterType(counterType).build();
+		final var relationType = RelationTypeEntity.builder().withName(typeName).withCounterType(counterType).build();
 		counterType.setCounterType(relationType);
 		final var newCounterType = RelationTypeEntity.builder().build();
-		final var newRelationType = RelationTypeEntity.builder().withName(type).withCounterType(newCounterType).build();
+		final var newRelationType = RelationTypeEntity.builder().withName(typeName).withCounterType(newCounterType).build();
 		newCounterType.setCounterType(newRelationType);
 
 		final var relation = Relation.builder()
-			.withType(type)
+			.withType(typeName)
 			.withSource(ResourceIdentifier.builder()
 				.withResourceId(sourceResourceId)
 				.withService(sourceService)
