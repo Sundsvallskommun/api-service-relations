@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springdoc.core.annotations.ParameterObject;
@@ -83,14 +84,14 @@ class RelationResource {
 	}
 
 	@GetMapping(produces = APPLICATION_JSON_VALUE)
-	@Operation(summary = "Find matching relations", description = "Query for relations with or withour filters.", responses = {
+	@Operation(summary = "Find matching relations", description = "Query for relations with or without filters.", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	})
 	ResponseEntity<RelationPagedResponse> findRelations(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "Syntax description: [spring-filter](https://github.com/turkraft/spring-filter/blob/85730f950a5f8623159cc0eb4d737555f9382bb7/README.md#syntax)",
 			example = "sourceId:'SUPPORT-CASE-ID' or targetId:'SUPPORT-CASE-ID'",
-			schema = @Schema(implementation = String.class)) @Filter final Specification<RelationEntity> filter,
+			schema = @Schema(implementation = String.class)) @Nullable @Filter final Specification<RelationEntity> filter,
 		@ParameterObject final RelationPageParameters pageParameters) {
 
 		return ok(service.findRelations(municipalityId, filter, pageParameters));
