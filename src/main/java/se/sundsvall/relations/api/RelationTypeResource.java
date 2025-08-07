@@ -43,7 +43,7 @@ import se.sundsvall.relations.service.RelationTypeService;
 	Problem.class, ConstraintViolationProblem.class
 })))
 @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
-public class RelationTypeResource {
+class RelationTypeResource {
 
 	private final RelationTypeService service;
 

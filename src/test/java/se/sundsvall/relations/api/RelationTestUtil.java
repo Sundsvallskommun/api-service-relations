@@ -3,7 +3,9 @@ package se.sundsvall.relations.api;
 import se.sundsvall.relations.api.model.Relation;
 import se.sundsvall.relations.api.model.ResourceIdentifier;
 
-public class RelationTestUtil {
+public final class RelationTestUtil {
+
+	private RelationTestUtil() {}
 
 	public static Relation createRelationInstance() {
 		return Relation.builder()

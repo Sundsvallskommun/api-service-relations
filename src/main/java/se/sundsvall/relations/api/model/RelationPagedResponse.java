@@ -14,11 +14,11 @@ import se.sundsvall.dept44.models.api.paging.PagingAndSortingMetaData;
 @Builder(setterPrefix = "with")
 @Schema(description = "Paged relation response")
 public class RelationPagedResponse {
+
 	@JsonProperty("_meta")
 	@Schema(implementation = PagingAndSortingMetaData.class, accessMode = READ_ONLY)
 	private PagingAndSortingMetaData metaData;
 
 	@ArraySchema(schema = @Schema(implementation = Relation.class, accessMode = READ_ONLY))
 	private List<Relation> relations;
-
 }
