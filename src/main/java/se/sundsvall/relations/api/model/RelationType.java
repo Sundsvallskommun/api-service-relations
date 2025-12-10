@@ -10,16 +10,16 @@ import lombok.Data;
 @Schema(description = "Type of relation")
 public class RelationType {
 
-	@Schema(description = "Name of type", example = "DUPLICATES")
+	@Schema(description = "Name of type", examples = "DUPLICATES")
 	@NotBlank
 	private String name;
 
-	@Schema(description = "Display value", example = "Duplicates")
+	@Schema(description = "Display value", examples = "Duplicates")
 	private String displayName;
 
-	@Schema(description = "Inverse value of type (if applicable)", example = "IS DUPLICATED BY")
+	@Schema(description = "Inverse value of type (if applicable)", examples = "IS DUPLICATED BY")
 	private String counterName;
 
-	@Schema(description = "Display value", example = "Is duplicated by")
+	@Schema(description = "Display value", examples = "Is duplicated by")
 	private String counterDisplayName;
 }

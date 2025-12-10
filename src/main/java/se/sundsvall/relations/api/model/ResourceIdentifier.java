@@ -11,11 +11,11 @@ import lombok.Data;
 public class ResourceIdentifier {
 
 	// Source
-	@Schema(description = "Unique id for the object", example = "some-id")
+	@Schema(description = "Unique id for the object", examples = "some-id")
 	@NotBlank
 	private String resourceId;
 
-	@Schema(description = "Type of object", example = "case")
+	@Schema(description = "Type of object", examples = "case")
 	@NotBlank
 	private String type;
 

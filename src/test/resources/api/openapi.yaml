@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: relations
   contact: {}
@@ -7,36 +7,36 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "1.1"
 servers:
-- url: http://localhost:65276
-  description: Generated server url
+  - url: http://localhost:65349
+    description: Generated server url
 tags:
-- name: Relation Type
-  description: 'CRUD for relation types '
-- name: Relation
-  description: Relations between objects
+  - name: Relation Type
+    description: 'CRUD for relation types '
+  - name: Relation
+    description: Relations between objects
 paths:
   /{municipalityId}/relations/{id}:
     get:
       tags:
-      - Relation
+        - Relation
       summary: Get relation
       description: Get relation with matching id.
       operationId: getRelation
       parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
-      - name: id
-        in: path
-        description: id of relation
-        required: true
-        schema:
-          type: string
-        example: b9702590-1a65-4b78-9de5-44e46e25b62c
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: id of relation
+          required: true
+          schema:
+            type: string
+          example: b9702590-1a65-4b78-9de5-44e46e25b62c
       responses:
         "200":
           description: Successful Operation
@@ -50,8 +50,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -60,25 +60,25 @@ paths:
                 $ref: "#/components/schemas/Problem"
     put:
       tags:
-      - Relation
+        - Relation
       summary: Save relation
       description: Replace relation by saving new values
       operationId: saveRelation
       parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
-      - name: id
-        in: path
-        description: id of relation
-        required: true
-        schema:
-          type: string
-        example: b9702590-1a65-4b78-9de5-44e46e25b62c
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: id of relation
+          required: true
+          schema:
+            type: string
+          example: b9702590-1a65-4b78-9de5-44e46e25b62c
       requestBody:
         content:
           application/json:
@@ -104,8 +104,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -114,25 +114,25 @@ paths:
                 $ref: "#/components/schemas/Problem"
     delete:
       tags:
-      - Relation
+        - Relation
       summary: Delete relation
       description: Deletes relation with matching id
       operationId: deleteRelation
       parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
-      - name: id
-        in: path
-        description: id of relation
-        required: true
-        schema:
-          type: string
-        example: b9702590-1a65-4b78-9de5-44e46e25b62c
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: id of relation
+          required: true
+          schema:
+            type: string
+          example: b9702590-1a65-4b78-9de5-44e46e25b62c
       responses:
         "204":
           description: Successful operation
@@ -148,8 +148,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -159,18 +159,18 @@ paths:
   /relation-types/{type}:
     get:
       tags:
-      - Relation Type
+        - Relation Type
       summary: Get relation type
       description: Get relation type with RelationType.type as key.
       operationId: getType
       parameters:
-      - name: type
-        in: path
-        description: relation type name
-        required: true
-        schema:
-          type: string
-        example: BLOCKS
+        - name: type
+          in: path
+          description: relation type name
+          required: true
+          schema:
+            type: string
+          example: BLOCKS
       responses:
         "200":
           description: Successful Operation
@@ -190,8 +190,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -200,18 +200,18 @@ paths:
                 $ref: "#/components/schemas/Problem"
     put:
       tags:
-      - Relation Type
+        - Relation Type
       summary: Save relation type
       description: Replace relation type by saving new values
       operationId: saveRelationType
       parameters:
-      - name: type
-        in: path
-        description: name of relation type
-        required: true
-        schema:
-          type: string
-        example: DUPLICATE
+        - name: type
+          in: path
+          description: name of relation type
+          required: true
+          schema:
+            type: string
+          example: DUPLICATE
       requestBody:
         content:
           application/json:
@@ -243,8 +243,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -253,18 +253,18 @@ paths:
                 $ref: "#/components/schemas/Problem"
     delete:
       tags:
-      - Relation Type
+        - Relation Type
       summary: Delete relation type
       description: Deletes relation type and possible counterType
       operationId: deleteRelationType
       parameters:
-      - name: type
-        in: path
-        description: name of relation type
-        required: true
-        schema:
-          type: string
-        example: DUPLICATE
+        - name: type
+          in: path
+          description: name of relation type
+          required: true
+          schema:
+            type: string
+          example: DUPLICATE
       responses:
         "204":
           description: Successful operation
@@ -280,8 +280,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -291,65 +291,65 @@ paths:
   /{municipalityId}/relations:
     get:
       tags:
-      - Relation
+        - Relation
       summary: Find matching relations
       description: Query for relations with or without filters.
       operationId: findRelations
       parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
-      - name: filter
-        in: query
-        description: "Syntax description: [spring-filter](https://github.com/turkraft/spring-filter/blob/85730f950a5f8623159cc0eb4d737555f9382bb7/README.md#syntax)"
-        required: false
-        schema:
-          type: string
-        example: sourceId:'SUPPORT-CASE-ID' or targetId:'SUPPORT-CASE-ID'
-      - name: sortBy
-        in: query
-        required: false
-        schema:
-          type: array
-          items:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
             type: string
-            description: The properties to sort on
-            example: propertyName
-      - name: sortDirection
-        in: query
-        description: The sort order direction
-        required: false
-        schema:
-          $ref: "#/components/schemas/Direction"
-        example: ASC
-      - name: page
-        in: query
-        description: Page number
-        required: false
-        schema:
-          minimum: 1
-          type: integer
+          example: 2281
+        - name: filter
+          in: query
+          description: "Syntax description: [spring-filter](https://github.com/turkraft/spring-filter/blob/85730f950a5f8623159cc0eb4d737555f9382bb7/README.md#syntax)"
+          required: false
+          schema:
+            type: string
+          example: sourceId:'SUPPORT-CASE-ID' or targetId:'SUPPORT-CASE-ID'
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              description: The properties to sort on
+              example: propertyName
+        - name: sortDirection
+          in: query
+          description: The sort order direction
+          required: false
+          schema:
+            $ref: "#/components/schemas/Direction"
+          example: ASC
+        - name: page
+          in: query
           description: Page number
-          format: int32
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+            description: Page number
+            example: 1
+            minimum: 1
           example: 1
-          default: 1
-        example: 1
-      - name: limit
-        in: query
-        description: Result size per page. Maximum allowed value is dynamically configured
-        required: false
-        schema:
-          minimum: 1
-          type: integer
-          description: Result size per page. Maximum allowed value is dynamically
-            configured
-          format: int32
+        - name: limit
+          in: query
+          description: Result size per page. Maximum allowed value is dynamically configured
+          required: false
+          schema:
+            type: integer
+            format: int32
+            description: Result size per page. Maximum allowed value is dynamically
+              configured
+            example: 15
+            minimum: 1
           example: 15
-        example: 15
       responses:
         "200":
           description: Successful Operation
@@ -363,8 +363,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -373,18 +373,18 @@ paths:
                 $ref: "#/components/schemas/Problem"
     post:
       tags:
-      - Relation
+        - Relation
       summary: Create relation
       description: Creates a new relation between to objects
       operationId: createRelation
       parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
@@ -405,8 +405,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -416,7 +416,7 @@ paths:
   /relation-types:
     get:
       tags:
-      - Relation Type
+        - Relation Type
       summary: Get relation types
       description: Get all relation types.
       operationId: getAllTypes
@@ -435,8 +435,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -445,7 +445,7 @@ paths:
                 $ref: "#/components/schemas/Problem"
     post:
       tags:
-      - Relation Type
+        - Relation Type
       summary: Create type
       description: Creates a new relation type
       operationId: createType
@@ -475,8 +475,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -486,7 +486,7 @@ paths:
   /api-docs:
     get:
       tags:
-      - API
+        - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -504,6 +504,12 @@ components:
     Problem:
       type: object
       properties:
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -512,80 +518,80 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
-        title:
-          type: string
+          additionalProperties: {}
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     Relation:
-      required:
-      - source
-      - target
-      - type
       type: object
+      description: Relation between objects
       properties:
         id:
           type: string
           description: Unique id for the relation
+          examples:
+            - f4de6b8b-f727-4ed1-9959-b9d5bde1922f
           readOnly: true
-          example: f4de6b8b-f727-4ed1-9959-b9d5bde1922f
         type:
-          minLength: 1
           type: string
           description: Type of relation. Valid types can be fetch via /relation-types
+          minLength: 1
         created:
           type: string
-          description: Timestamp when relations was created
           format: date-time
+          description: Timestamp when relations was created
+          examples:
+            - 2000-10-31T01:30:00.000+02:00
           readOnly: true
-          example: 2000-10-31T01:30:00+02:00
         modified:
           type: string
-          description: Timestamp when relations was last modified
           format: date-time
+          description: Timestamp when relations was last modified
+          examples:
+            - 2000-10-31T01:30:00.000+02:00
           readOnly: true
-          example: 2000-10-31T01:30:00+02:00
         source:
           $ref: "#/components/schemas/ResourceIdentifier"
+          description: Source identifiers
         target:
           $ref: "#/components/schemas/ResourceIdentifier"
-      description: Relation between objects
-    ResourceIdentifier:
+          description: Target identifiers
       required:
-      - resourceId
-      - service
-      - type
+        - source
+        - target
+        - type
+    ResourceIdentifier:
       type: object
+      description: Resource identifier for source and target
       properties:
         resourceId:
-          minLength: 1
           type: string
           description: Unique id for the object
-          example: some-id
-        type:
+          examples:
+            - some-id
           minLength: 1
+        type:
           type: string
           description: Type of object
-          example: case
-        service:
+          examples:
+            - case
           minLength: 1
+        service:
           type: string
           description: Name of service where object exists
+          minLength: 1
         namespace:
           type: string
           description: Namespace of object
-      description: Resource identifier for source and target
+      required:
+        - resourceId
+        - service
+        - type
     ConstraintViolationProblem:
       type: object
       properties:
@@ -626,15 +632,14 @@ components:
           type: string
         message:
           type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
-        detail:
-          type: string
+          additionalProperties: {}
         suppressed:
           type: array
           items:
@@ -671,8 +676,7 @@ components:
     ThrowableProblem:
       type: object
       properties:
-        cause:
-          $ref: "#/components/schemas/ThrowableProblem"
+        cause: {}
         stackTrace:
           type: array
           items:
@@ -697,6 +701,12 @@ components:
                 type: boolean
         message:
           type: string
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -705,14 +715,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
-        title:
-          type: string
+          additionalProperties: {}
         suppressed:
           type: array
           items:
@@ -754,89 +757,96 @@ components:
         message:
           type: string
     RelationType:
-      required:
-      - name
       type: object
+      description: Type of relation
       properties:
         name:
-          minLength: 1
           type: string
           description: Name of type
-          example: DUPLICATES
+          examples:
+            - DUPLICATES
+          minLength: 1
         displayName:
           type: string
           description: Display value
-          example: Duplicates
+          examples:
+            - Duplicates
         counterName:
           type: string
           description: Inverse value of type (if applicable)
-          example: IS DUPLICATED BY
+          examples:
+            - IS DUPLICATED BY
         counterDisplayName:
           type: string
           description: Display value
-          example: Is duplicated by
-      description: Type of relation
+          examples:
+            - Is duplicated by
+      required:
+        - name
     Direction:
       type: string
       description: The sort order direction
-      example: ASC
       enum:
-      - ASC
-      - DESC
+        - ASC
+        - DESC
+      example: ASC
     PagingAndSortingMetaData:
       type: object
+      description: PagingAndSortingMetaData model
       properties:
         page:
           type: integer
-          description: Current page
           format: int32
-          readOnly: true
+          description: Current page
           example: 5
+          readOnly: true
         limit:
           type: integer
-          description: Displayed objects per page
           format: int32
-          readOnly: true
+          description: Displayed objects per page
           example: 20
+          readOnly: true
         count:
           type: integer
-          description: Displayed objects on current page
           format: int32
-          readOnly: true
+          description: Displayed objects on current page
           example: 13
+          readOnly: true
         totalRecords:
           type: integer
-          description: Total amount of hits based on provided search parameters
           format: int64
-          readOnly: true
+          description: Total amount of hits based on provided search parameters
           example: 98
+          readOnly: true
         totalPages:
           type: integer
-          description: Total amount of pages based on provided search parameters
           format: int32
-          readOnly: true
+          description: Total amount of pages based on provided search parameters
           example: 23
+          readOnly: true
         sortBy:
           type: array
-          readOnly: true
           items:
             type: string
             description: The properties to sort by
-            readOnly: true
             example: property
+            readOnly: true
+          readOnly: true
         sortDirection:
           $ref: "#/components/schemas/Direction"
-      description: PagingAndSortingMetaData model
-      readOnly: true
+          description: The sort order direction
+          example: ASC
     RelationPagedResponse:
       type: object
+      description: Paged relation response
       properties:
         relations:
           type: array
-          readOnly: true
           items:
             $ref: "#/components/schemas/Relation"
+            readOnly: true
+          readOnly: true
         _meta:
           $ref: "#/components/schemas/PagingAndSortingMetaData"
-      description: Paged relation response
+          readOnly: true
   securitySchemes: {}
