@@ -18,7 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class Relation {
 
 	// Relation
-	@Schema(description = "Unique id for the relation", example = "f4de6b8b-f727-4ed1-9959-b9d5bde1922f", accessMode = READ_ONLY)
+	@Schema(description = "Unique id for the relation", examples = "f4de6b8b-f727-4ed1-9959-b9d5bde1922f", accessMode = READ_ONLY)
 	@Null
 	private String id;
 
@@ -26,12 +26,12 @@ public class Relation {
 	@NotBlank
 	private String type;
 
-	@Schema(description = "Timestamp when relations was created", example = "2000-10-31T01:30:00.000+02:00", accessMode = READ_ONLY)
+	@Schema(description = "Timestamp when relations was created", examples = "2000-10-31T01:30:00.000+02:00", accessMode = READ_ONLY)
 	@DateTimeFormat(iso = DATE_TIME)
 	@Null
 	private OffsetDateTime created;
 
-	@Schema(description = "Timestamp when relations was last modified", example = "2000-10-31T01:30:00.000+02:00", accessMode = READ_ONLY)
+	@Schema(description = "Timestamp when relations was last modified", examples = "2000-10-31T01:30:00.000+02:00", accessMode = READ_ONLY)
 	@DateTimeFormat(iso = DATE_TIME)
 	@Null
 	private OffsetDateTime modified;
