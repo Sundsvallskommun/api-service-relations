@@ -1,10 +1,5 @@
 package se.sundsvall.relations.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static se.sundsvall.relations.api.RelationTestUtil.createRelationInstance;
-
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -25,6 +20,11 @@ import org.springframework.web.util.UriBuilder;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.relations.Application;
 import se.sundsvall.relations.service.RelationService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static se.sundsvall.relations.api.RelationTestUtil.createRelationInstance;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")

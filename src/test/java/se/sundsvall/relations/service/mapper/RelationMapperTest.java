@@ -1,9 +1,5 @@
 package se.sundsvall.relations.service.mapper;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.relations.api.model.Relation;
@@ -11,6 +7,10 @@ import se.sundsvall.relations.api.model.ResourceIdentifier;
 import se.sundsvall.relations.integration.db.model.RelationEntity;
 import se.sundsvall.relations.integration.db.model.RelationTypeEntity;
 import se.sundsvall.relations.integration.db.model.ResourceIdentifierEntity;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 class RelationMapperTest {
 

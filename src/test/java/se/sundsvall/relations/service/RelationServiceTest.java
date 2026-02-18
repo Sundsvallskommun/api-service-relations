@@ -1,18 +1,5 @@
 package se.sundsvall.relations.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.data.domain.Sort.Direction.DESC;
-import static se.sundsvall.relations.service.RelationService.withMunicipalityId;
-
 import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +25,19 @@ import se.sundsvall.relations.integration.db.RelationTypeRepository;
 import se.sundsvall.relations.integration.db.model.RelationEntity;
 import se.sundsvall.relations.integration.db.model.RelationTypeEntity;
 import se.sundsvall.relations.service.mapper.RelationMapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.data.domain.Sort.Direction.DESC;
+import static se.sundsvall.relations.service.RelationService.withMunicipalityId;
 
 @ExtendWith(MockitoExtension.class)
 class RelationServiceTest {

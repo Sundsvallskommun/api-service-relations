@@ -1,12 +1,12 @@
 package se.sundsvall.relations.service.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import org.junit.jupiter.api.Test;
 import se.sundsvall.relations.api.model.RelationType;
 import se.sundsvall.relations.integration.db.model.RelationTypeEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class RelationTypeMapperTest {
 

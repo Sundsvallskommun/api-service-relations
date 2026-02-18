@@ -1,8 +1,5 @@
 package se.sundsvall.relations.service;
 
-import static org.zalando.problem.Status.BAD_REQUEST;
-import static org.zalando.problem.Status.NOT_FOUND;
-
 import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -16,6 +13,9 @@ import se.sundsvall.relations.integration.db.RelationRepository;
 import se.sundsvall.relations.integration.db.RelationTypeRepository;
 import se.sundsvall.relations.integration.db.model.RelationEntity;
 import se.sundsvall.relations.service.mapper.RelationMapper;
+
+import static org.zalando.problem.Status.BAD_REQUEST;
+import static org.zalando.problem.Status.NOT_FOUND;
 
 @Service
 public class RelationService {
