@@ -17,7 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.relations.api.model.Relation;
 import se.sundsvall.relations.api.model.RelationPageParameters;
 import se.sundsvall.relations.integration.db.RelationRepository;
@@ -42,34 +42,25 @@ import static se.sundsvall.relations.service.RelationService.withMunicipalityId;
 @ExtendWith(MockitoExtension.class)
 class RelationServiceTest {
 
+	private static final String MUNICIPALITY_ID = "municipalityId";
 	@Mock
 	private RelationRepository relationRepositoryMock;
-
 	@Mock
 	private RelationTypeRepository relationTypeRepositoryMock;
-
 	@Mock
 	private RelationMapper mapperMock;
-
 	@Mock
 	private RelationTypeEntity relationTypeEntityMock;
-
 	@Mock
 	private Page<RelationEntity> pageMock;
-
 	@Spy
 	private FilterSpecificationConverter filterSpecificationConverterSpy;
-
 	@Captor
 	private ArgumentCaptor<Specification<RelationEntity>> specificationCaptor;
-
 	@Captor
 	private ArgumentCaptor<Pageable> pageableCaptor;
-
 	@InjectMocks
 	private RelationService service;
-
-	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	@Test
 	void createRelation() {
@@ -155,11 +146,52 @@ class RelationServiceTest {
 		assertThat(result.getMetaData().getCount()).isEqualTo(4L);
 		assertThat(result.getMetaData().getLimit()).isEqualTo(100);
 		assertThat(result.getMetaData().getPage()).isEqualTo(1);
-		assertThat(specificationCaptor.getValue()).usingRecursiveComparison().isEqualTo(withMunicipalityId(MUNICIPALITY_ID).and(filter));
+		if (filter != null) {
+			assertThat(specificationCaptor.getValue()).usingRecursiveComparison().isEqualTo(withMunicipalityId(MUNICIPALITY_ID).and(filter));
+		} else {
+			assertThat(specificationCaptor.getValue()).usingRecursiveComparison().isEqualTo(withMunicipalityId(MUNICIPALITY_ID));
+		}
 		assertThat(pageableCaptor.getValue().getPageNumber()).isEqualTo(10);
 		assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(22);
 		assertThat(pageableCaptor.getValue().getSort()).isEqualTo(Sort.by(DESC, "created"));
 
+	}
+
+	@Test
+	void findRelationsWithNullFilter() {
+		final var page = new RelationPageParameters();
+		page.setPage(11);
+		page.setLimit(22);
+		page.setSortBy(List.of("created"));
+		page.setSortDirection(DESC);
+		final var relation = Relation.builder().build();
+		final var entity = RelationEntity.builder().build();
+
+		when(relationRepositoryMock.findAll(ArgumentMatchers.<Specification<RelationEntity>>any(), any(Pageable.class))).thenReturn(pageMock);
+		when(pageMock.stream()).thenReturn(Stream.of(entity));
+		when(pageMock.getTotalPages()).thenReturn(2);
+		when(pageMock.getTotalElements()).thenReturn(3L);
+		when(pageMock.getNumberOfElements()).thenReturn(4);
+		when(pageMock.getSize()).thenReturn(100);
+		when(pageMock.getNumber()).thenReturn(0);
+		when(pageMock.getSort()).thenReturn(Sort.unsorted());
+		when(mapperMock.toRelation(any())).thenReturn(relation);
+
+		final var result = service.findRelations(MUNICIPALITY_ID, null, page);
+
+		verify(relationRepositoryMock).findAll(specificationCaptor.capture(), pageableCaptor.capture());
+		verify(mapperMock).toRelation(same(entity));
+		verify(pageMock).stream();
+		verify(pageMock).getTotalPages();
+		verify(pageMock).getTotalElements();
+		verify(pageMock).getNumberOfElements();
+		verify(pageMock).getSize();
+		verify(pageMock).getNumber();
+		verify(pageMock, times(2)).getSort();
+		verifyNoMoreInteractions(relationRepositoryMock, pageMock, mapperMock);
+
+		assertThat(result.getRelations()).containsExactly(relation);
+		assertThat(specificationCaptor.getValue()).usingRecursiveComparison().isEqualTo(withMunicipalityId(MUNICIPALITY_ID));
 	}
 
 	@Test
