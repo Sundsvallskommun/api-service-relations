@@ -2,14 +2,14 @@ package se.sundsvall.relations.service;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.relations.api.model.RelationType;
 import se.sundsvall.relations.integration.db.RelationRepository;
 import se.sundsvall.relations.integration.db.RelationTypeRepository;
 import se.sundsvall.relations.service.mapper.RelationTypeMapper;
 
-import static org.zalando.problem.Status.CONFLICT;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class RelationTypeService {
